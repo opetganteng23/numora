@@ -26,6 +26,7 @@ const ACTION_LABEL: Record<string, string> = {
   "tenant.register": "Mendaftarkan instansi",
   "tenant.seed": "Membuat instansi",
   "unit.create": "Menambah unit",
+  "tenant.settings_update": "Mengubah kebijakan instansi",
   "lettertype.create": "Menambah jenis surat",
   "lettertype.update": "Mengubah jenis surat",
 };

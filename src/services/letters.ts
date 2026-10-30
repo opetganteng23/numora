@@ -1,6 +1,7 @@
 import mongoose, { Types } from "mongoose";
 import { AppError, withRetry } from "@/lib/errors";
 import { issueNumber } from "@/lib/issue-number";
+import { withLock } from "@/lib/mutex";
 import { canApprove, canCancel, canCreateLetter, canRequestCancel, type TenantCtx } from "@/lib/rbac";
 import { Letter, LetterType, Tenant, Unit, User } from "@/models";
 import { audit } from "./audit";
@@ -74,7 +75,8 @@ export async function approveLetter(ctx: TenantCtx, letterId: string) {
   const tenantId = oid(ctx.tenantId);
   const id = oid(letterId);
 
-  const result = await withRetry(() =>
+  const result = await withLock(`approve:${ctx.tenantId}`, () =>
+    withRetry(() =>
     mongoose.connection.transaction(async (session) => {
       const letter = await Letter.findOne({ _id: id, tenantId }).session(session);
       if (!letter) throw new AppError(404, "Surat tidak ditemukan");
@@ -121,6 +123,7 @@ export async function approveLetter(ctx: TenantCtx, letterId: string) {
       );
       return letter.toObject();
     }),
+    ),
   );
 
   await notifyDecision(letterId);

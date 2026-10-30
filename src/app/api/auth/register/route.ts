@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { AppError } from "@/lib/errors";
+import { rateLimit } from "@/lib/rate-limit";
 import { handle, json, parseBody } from "@/lib/http";
 import { hashPassword } from "@/lib/password";
 import { createSession } from "@/lib/session";
@@ -23,6 +24,7 @@ const slugify = (s: string) =>
 
 /** Pendaftaran instansi baru: membuat Tenant + tenant_admin pertamanya. Aktif bila REGISTRATION_OPEN=1. */
 export const POST = handle(async (req) => {
+  rateLimit(req, { key: "register", limit: 5, windowMs: 3600000 });
   if (process.env.REGISTRATION_OPEN !== "1") throw new AppError(403, "Pendaftaran mandiri sedang ditutup. Hubungi administrator.");
   const body = await parseBody(req, schema);
   const email = body.email.toLowerCase().trim();

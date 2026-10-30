@@ -24,7 +24,7 @@ async function main() {
     await m.syncIndexes();
   }
 
-  const tenant = await Tenant.create({ name: "Uji Konkurensi", slug: `conc-${Date.now()}` });
+  const tenant = await Tenant.create({ name: "Uji Konkurensi", slug: `conc-${Date.now()}`, allowSelfApproval: true });
   const unit = await Unit.create({ tenantId: tenant._id, name: "Bagian Uji", code: "UJI" });
   const admin = await User.create({
     tenantId: tenant._id,

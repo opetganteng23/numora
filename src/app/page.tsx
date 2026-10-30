@@ -60,7 +60,10 @@ const tokens = ["{urut}", "{jenis}", "{unit}", "{bulan}", "{bulan_romawi}", "{ta
 
 const samples = ["012/MOU/LEGAL/X/2026", "045/SK/IV/2026", "007/SKU/HRD/2026", "103/SPK/KEU/2026"];
 
+export const dynamic = "force-dynamic";
+
 export default function Home() {
+  const open = process.env.REGISTRATION_OPEN === "1";
   return (
     <>
       <header className="topbar">
@@ -69,9 +72,11 @@ export default function Home() {
           <nav>
             <a href="#fitur">Fitur</a>
             <a href="#cara-kerja">Cara kerja</a>
-            <Link className="btn btn-sm btn-ghost" href="/register">
-              Daftar
-            </Link>
+            {open && (
+              <Link className="btn btn-sm btn-ghost" href="/register">
+                Daftar
+              </Link>
+            )}
             <Link className="btn btn-sm" href="/login">
               Masuk
             </Link>
@@ -203,14 +208,16 @@ export default function Home() {
           <Reveal>
             <div className="card cta-band">
               <h2>Siap menertibkan penomoran surat Anda?</h2>
-              <p>Masuk dengan akun dari administrator, atau daftarkan instansi Anda sekarang.</p>
+              <p>{open ? "Masuk dengan akun dari administrator, atau daftarkan instansi Anda sekarang." : "Masuk dengan akun dari administrator instansi Anda."}</p>
               <div className="cta" style={{ justifyContent: "center" }}>
                 <Link className="btn" href="/login">
                   Masuk ke NUMORA
                 </Link>
-                <Link className="btn btn-ghost" href="/register">
-                  Daftarkan instansi
-                </Link>
+                {open && (
+                  <Link className="btn btn-ghost" href="/register">
+                    Daftarkan instansi
+                  </Link>
+                )}
               </div>
             </div>
           </Reveal>

@@ -37,6 +37,7 @@ export default function TeamPage() {
   const [types, setTypes] = useState<LType[]>([]);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [selfApprove, setSelfApprove] = useState<boolean | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -48,6 +49,8 @@ export default function TeamPage() {
       setUsers(u.items);
       setUnits(un.items);
       setTypes(t.items);
+      const st = await api<{ settings: { allowSelfApproval: boolean } }>("/api/tenant/settings");
+      setSelfApprove(st.settings.allowSelfApproval);
     } catch (e) {
       setMsg({ ok: false, text: (e as Error).message });
     }
@@ -82,6 +85,22 @@ export default function TeamPage() {
         </div>
       </div>
       {msg && <p className={`flash ${msg.ok ? "ok" : "bad"}`}>{msg.text}</p>}
+
+      <div className="card" style={{ marginBottom: 18 }}>
+        <h3>Kebijakan persetujuan</h3>
+        <label className="check">
+          <input
+            type="checkbox"
+            checked={!!selfApprove}
+            disabled={busy || selfApprove === null}
+            onChange={(e) => run(() => api("/api/tenant/settings", { method: "PATCH", json: { allowSelfApproval: e.target.checked } }), "Kebijakan disimpan.")}
+          />
+          Izinkan pemohon menyetujui pengajuannya sendiri
+        </label>
+        <p className="muted small" style={{ margin: "6px 0 0" }}>
+          Dianjurkan mati agar ada pemisahan tugas. Nyalakan hanya bila instansi Anda baru punya satu admin. Setiap perubahan tercatat di jejak audit.
+        </p>
+      </div>
 
       <div className="card">
         <h3>Pengguna</h3>

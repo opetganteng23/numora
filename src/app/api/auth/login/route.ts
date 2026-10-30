@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { AppError } from "@/lib/errors";
+import { rateLimit } from "@/lib/rate-limit";
 import { handle, json, parseBody } from "@/lib/http";
 import { verifyPassword } from "@/lib/password";
 import { createSession } from "@/lib/session";
@@ -11,6 +12,7 @@ const MAX_FAILED = 5;
 const LOCK_MS = 15 * 60 * 1000;
 
 export const POST = handle(async (req) => {
+  rateLimit(req, { key: "login", limit: 15, windowMs: 300000 });
   const { email, password } = await parseBody(req, schema);
   const user = await User.findOne({ email: email.toLowerCase().trim() }).select("+passwordHash");
 

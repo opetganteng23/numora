@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { rateLimit } from "@/lib/rate-limit";
 import { handle, json, parseBody } from "@/lib/http";
 import { createSession } from "@/lib/session";
 import { acceptInvitation } from "@/services/invitations";
@@ -9,6 +10,7 @@ const schema = z.object({
 });
 
 export const POST = handle(async (req) => {
+  rateLimit(req, { key: "accept", limit: 10, windowMs: 900000 });
   const { token, password } = await parseBody(req, schema);
   const userId = await acceptInvitation(token, password);
   await createSession(String(userId));
