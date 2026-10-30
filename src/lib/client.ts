@@ -37,6 +37,8 @@ export const ACTION_LABEL: Record<string, string> = {
   "letter.reject": "Menolak pengajuan",
   "letter.cancel_request": "Mengajukan pembatalan",
   "letter.cancel": "Membatalkan nomor",
+  "letter.document_upload": "Mengunggah dokumen",
+  "letter.document_download": "Mengunduh dokumen",
   "letters.import": "Impor data awal",
   "user.invite": "Mengundang pengguna",
   "user.invite_resend": "Mengirim ulang undangan",

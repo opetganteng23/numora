@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { DocumentsCard } from "@/components/DocumentsCard";
 import { requireTenantUser } from "@/lib/auth";
 import { ACTION_LABEL, fmtDate, fmtDateTime, STATUS_LABEL } from "@/lib/client";
 import { getLetter } from "@/services/letters";
@@ -97,6 +98,21 @@ export default async function LetterDetail({ params }: { params: Promise<{ id: s
           )}
         </div>
       </div>
+
+      {l.status === "approved" && (
+        <DocumentsCard
+          letterId={String(l._id)}
+          canUpload={ctx.role !== "auditor"}
+          docs={(l.documents ?? []).map((d) => ({
+            version: d.version,
+            fileName: d.fileName,
+            size: d.size,
+            sha256: d.sha256,
+            uploadedAt: new Date(d.uploadedAt).toISOString(),
+            uploaderName: nm(d.uploadedBy),
+          }))}
+        />
+      )}
     </>
   );
 }

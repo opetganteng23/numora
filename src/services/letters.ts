@@ -360,6 +360,7 @@ export async function getLetter(ctx: TenantCtx, letterId: string) {
   const ids = new Set<string>();
   for (const h of history) if (h.actorId) ids.add(String(h.actorId));
   for (const k of ["approvedBy", "rejectedBy", "cancelledBy"] as const) if (letter[k]) ids.add(String(letter[k]));
+  for (const d of letter.documents ?? []) ids.add(String(d.uploadedBy));
   if (letter.cancelRequest?.by) ids.add(String(letter.cancelRequest.by));
   const users = await User.find({ _id: { $in: [...ids] } }).select("name").lean();
   const names = Object.fromEntries(users.map((u) => [String(u._id), u.name]));

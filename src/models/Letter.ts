@@ -12,6 +12,31 @@ export interface ILetterNumber {
   issuedAt: Date;
 }
 
+export interface ILetterDocument {
+  version: number;
+  fileName: string;
+  mime: string;
+  size: number;
+  sha256: string;
+  storageKey: string;
+  uploadedBy: Types.ObjectId;
+  uploadedAt: Date;
+}
+
+const DocumentSchema = new Schema<ILetterDocument>(
+  {
+    version: { type: Number, required: true },
+    fileName: { type: String, required: true, maxlength: 200 },
+    mime: { type: String, required: true },
+    size: { type: Number, required: true },
+    sha256: { type: String, required: true },
+    storageKey: { type: String, required: true },
+    uploadedBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    uploadedAt: { type: Date, required: true },
+  },
+  { _id: false },
+);
+
 /**
  * Alur status:  pending -> approved -> cancelled
  *                       -> rejected
@@ -39,6 +64,8 @@ export interface ILetter {
   cancelledAt?: Date;
   cancelReason?: string;
   fileUrl?: string;
+  /** Versi dokumen final. Versi lama tidak pernah dihapus. */
+  documents?: ILetterDocument[];
   /** Pengelompokan bebas (Surat Tugas, Surat Keluar, ...). Tidak memengaruhi urutan nomor. */
   category?: string;
   /** Jejak data impor dari spreadsheet lama. */
@@ -81,6 +108,7 @@ const LetterSchema = new Schema<ILetter>(
     cancelledAt: Date,
     cancelReason: { type: String, maxlength: 500 },
     fileUrl: { type: String, maxlength: 500 },
+    documents: { type: [DocumentSchema], default: undefined },
     category: { type: String, trim: true, maxlength: 60 },
     legacy: {
       type: new Schema({ sheetNo: Number, creator: String, note: String }, { _id: false }),
