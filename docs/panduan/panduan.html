@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>NUMORA | Panduan Pengguna</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+@page { size: A4; margin: 0; }
+:root { --teal:#00809d; --teal-d:#005f75; --teal-l:#e0f1f5; --org:#f47521; --org-l:#fdeadb; --ink:#16212e; --mute:#5d6b7c; --cloud:#f4f7fb; --line:#dde5ef; }
+* { box-sizing:border-box; }
+html,body { margin:0; font-family:'Poppins',sans-serif; color:var(--ink); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+.page { width:210mm; height:297mm; position:relative; overflow:hidden; page-break-after:always; background:var(--cloud); padding:18mm 16mm 16mm; }
+.page:last-child { page-break-after:auto; }
+.folio { position:absolute; left:16mm; right:16mm; bottom:8mm; display:flex; justify-content:space-between; font-size:8pt; color:var(--mute); border-top:1px solid var(--line); padding-top:2.5mm; }
+.folio b { color:var(--teal); }
+h1,h2,h3,p { margin:0; }
+.kicker { font-size:8.5pt; font-weight:600; letter-spacing:.18em; text-transform:uppercase; color:var(--org); }
+.title { font-size:30pt; font-weight:800; line-height:1.08; letter-spacing:-.02em; margin:2mm 0 4mm; }
+.title span { color:var(--teal); }
+.lead { font-size:11pt; color:var(--mute); line-height:1.6; max-width:150mm; }
+.body { font-size:9.5pt; line-height:1.65; }
+.body p + p { margin-top:2.5mm; }
+.drop::first-letter { float:left; font-size:40pt; font-weight:800; line-height:.85; color:var(--teal); padding:1mm 2mm 0 0; }
+
+/* Sampul */
+.cover { background:linear-gradient(155deg,#00809d 0%,#00566b 70%); color:#fff; padding:0; }
+.cover .blob { position:absolute; border-radius:50%; }
+.cover .b1 { width:150mm; height:150mm; right:-50mm; top:-40mm; background:rgba(255,255,255,.08); }
+.cover .b2 { width:90mm; height:90mm; left:-30mm; bottom:40mm; background:rgba(244,117,33,.9); }
+.cover .b3 { width:40mm; height:40mm; right:22mm; bottom:62mm; background:rgba(255,255,255,.14); }
+.cover .in { position:absolute; inset:0; padding:20mm 18mm; display:flex; flex-direction:column; justify-content:space-between; }
+.cover .logo { width:34mm; height:34mm; background:#fff; border-radius:7mm; padding:2mm; box-shadow:0 6mm 14mm rgba(0,0,0,.25); }
+.cover .logo img { width:100%; }
+.cover h1 { font-size:58pt; font-weight:800; letter-spacing:-.03em; line-height:1; }
+.cover h2 { font-size:19pt; font-weight:400; margin-top:4mm; max-width:120mm; line-height:1.3; }
+.cover .tag { display:inline-block; background:#fff; color:var(--teal-d); font-weight:700; font-size:9pt; letter-spacing:.14em; text-transform:uppercase; padding:2mm 5mm; border-radius:99px; margin-bottom:6mm; }
+.cover .meta { display:flex; justify-content:space-between; font-size:9pt; opacity:.9; border-top:1px solid rgba(255,255,255,.35); padding-top:4mm; }
+.cover ul { list-style:none; padding:0; margin:8mm 0 0; display:flex; gap:3mm; flex-wrap:wrap; }
+.cover li { background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.3); padding:1.5mm 4mm; border-radius:99px; font-size:8.5pt; }
+
+/* Kartu dan kotak */
+.card { background:#fff; border:1px solid var(--line); border-radius:4mm; padding:5mm; box-shadow:0 1mm 4mm rgba(22,33,46,.05); }
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:5mm; }
+.grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:4mm; }
+.fact b { display:block; font-size:20pt; color:var(--teal); line-height:1.1; }
+.fact span { font-size:8.5pt; color:var(--mute); }
+.pull { border-left:1.2mm solid var(--org); padding:1mm 0 1mm 5mm; font-size:13pt; font-weight:600; line-height:1.4; color:var(--teal-d); }
+.tip { background:var(--org-l); border-radius:3.5mm; padding:4mm 5mm; font-size:9pt; line-height:1.55; }
+.tip b.h { display:block; color:#b4500e; font-size:8pt; letter-spacing:.14em; text-transform:uppercase; margin-bottom:1mm; }
+.note { background:var(--teal-l); border-radius:3.5mm; padding:4mm 5mm; font-size:9pt; line-height:1.55; }
+.note b.h { display:block; color:var(--teal-d); font-size:8pt; letter-spacing:.14em; text-transform:uppercase; margin-bottom:1mm; }
+
+/* Daftar isi */
+.toc { list-style:none; padding:0; margin:6mm 0 0; }
+.toc li { display:flex; align-items:baseline; gap:3mm; padding:2.4mm 0; border-bottom:1px dashed var(--line); font-size:10pt; }
+.toc .n { font-weight:700; color:var(--org); width:9mm; }
+.toc .p { margin-left:auto; color:var(--mute); font-weight:600; }
+
+/* Tangkapan layar dan penanda */
+.shot { position:relative; border-radius:3.5mm; overflow:hidden; border:1px solid var(--line); box-shadow:0 3mm 9mm rgba(22,33,46,.12); background:#fff; }
+.shot img { display:block; width:100%; }
+.crop { position:relative; overflow:hidden; border-radius:3mm; border:1px solid var(--line); background:#fff; }
+.crop img { position:absolute; left:0; width:100%; }
+.mk { position:absolute; width:6.2mm; height:6.2mm; margin:-3.1mm 0 0 -3.1mm; border-radius:50%; background:var(--org); color:#fff; font-size:8.5pt; font-weight:700; display:grid; place-items:center; box-shadow:0 0 0 1.2mm rgba(244,117,33,.3), 0 1mm 2mm rgba(0,0,0,.25); font-style:normal; }
+.legend { list-style:none; padding:0; margin:0; display:grid; gap:2.2mm; }
+.legend li { display:flex; gap:3mm; font-size:9pt; line-height:1.5; }
+.legend .k { flex:none; width:5.6mm; height:5.6mm; border-radius:50%; background:var(--org); color:#fff; font-weight:700; font-size:8pt; display:grid; place-items:center; margin-top:.4mm; }
+.legend b { color:var(--ink); }
+.fid { display:inline-block; font-size:8pt; font-weight:700; letter-spacing:.12em; color:#fff; background:var(--teal); padding:1mm 3.5mm; border-radius:99px; margin-bottom:2mm; }
+.fid.api { background:var(--org); }
+.cap { font-size:8pt; color:var(--mute); margin-top:2mm; text-align:center; }
+.steps { list-style:none; padding:0; margin:0; counter-reset:s; display:grid; gap:2.6mm; }
+.steps li { counter-increment:s; position:relative; padding-left:8.6mm; font-size:9.3pt; line-height:1.55; }
+.steps li::before { content:counter(s); position:absolute; left:0; top:.4mm; width:5.6mm; height:5.6mm; border-radius:50%; background:var(--teal); color:#fff; font-weight:700; font-size:8pt; display:grid; place-items:center; }
+code { font-family:Consolas,monospace; background:var(--teal-l); color:var(--teal-d); padding:.3mm 1.6mm; border-radius:1.2mm; font-size:8.5pt; }
+
+/* Tabel */
+table { width:100%; border-collapse:collapse; font-size:8.4pt; }
+th { text-align:left; background:var(--teal); color:#fff; padding:2mm 2.4mm; font-weight:600; }
+td { padding:1.9mm 2.4mm; border-bottom:1px solid var(--line); vertical-align:top; background:#fff; }
+tr:nth-child(even) td { background:#f9fbfd; }
+td.c, th.c { text-align:center; }
+.yes { color:#1a7a43; font-weight:700; } .no { color:#b6bfca; }
+.badge { display:inline-block; font-size:7pt; font-weight:700; padding:.5mm 2mm; border-radius:99px; background:var(--teal-l); color:var(--teal-d); }
+.badge.o { background:var(--org-l); color:#b4500e; }
+
+/* Alur status */
+.flow { display:grid; grid-template-columns:repeat(4,1fr); gap:3mm; position:relative; }
+.flow::before { content:""; position:absolute; left:10%; right:10%; top:8mm; height:0; border-top:.6mm dashed #b9d9e2; }
+.node { position:relative; background:#fff; border:1px solid var(--line); border-radius:3.5mm; padding:16mm 3mm 4mm; text-align:center; font-size:8.5pt; line-height:1.45; }
+.node i { position:absolute; left:50%; top:3mm; margin-left:-5mm; width:10mm; height:10mm; border-radius:50%; background:var(--org); color:#fff; font-weight:700; display:grid; place-items:center; font-style:normal; font-size:10pt; box-shadow:0 0 0 1.6mm var(--org-l); }
+.node b { display:block; font-size:10pt; margin-bottom:1mm; }
+.st { display:inline-block; font-size:7.5pt; font-weight:700; padding:.6mm 2.4mm; border-radius:99px; margin-top:1.5mm; }
+.st.p { background:#fff3cd; color:#8a6500; } .st.a { background:#e3f6ea; color:#1a7a43; } .st.r { background:#fde4e1; color:#b3261e; } .st.x { background:#e6e9ee; color:#4a5565; }
+
+/* Sampul belakang */
+.back { background:linear-gradient(160deg,#00566b,#00809d); color:#fff; padding:0; }
+.back .in { position:absolute; inset:0; padding:30mm 20mm; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; gap:6mm; }
+.back .logo { width:38mm; height:38mm; background:#fff; border-radius:8mm; padding:2.5mm; }
+.back .logo img { width:100%; }
+.back h2 { font-size:26pt; font-weight:800; }
+.back p { max-width:120mm; line-height:1.7; font-size:10.5pt; opacity:.95; }
+.back .url { background:#fff; color:var(--teal-d); font-weight:700; padding:3mm 8mm; border-radius:99px; font-size:12pt; }
+table.tight td { padding:1.15mm 2.4mm; }
+</style>
+</head>
+<body>
+
+<!-- 1. SAMPUL -->
+<section class="page cover">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <div class="in">
+    <div class="logo"><img src="../../public/logo-ailo.png" alt="AILO"></div>
+    <div>
+      <span class="tag">Edisi 1 &middot; Panduan Pengguna</span>
+      <h1>NUMORA</h1>
+      <h2>Numbering, Simplified. Panduan lengkap penomoran surat resmi untuk instansi Anda.</h2>
+      <ul><li>Daftar &amp; masuk</li><li>Alur persetujuan</li><li>Format nomor</li><li>Peran &amp; hak akses</li><li>Referensi fungsi</li></ul>
+    </div>
+    <div class="meta"><span>numora.ailabs.or.id</span><span>AILO | Telkom University's Center of Excellence</span><span>Oktober 2026</span></div>
+  </div>
+</section>
+
+<!-- 2. SELAMAT DATANG + DAFTAR ISI -->
+<section class="page">
+  <div class="kicker">Selamat datang</div>
+  <h2 class="title">Satu pintu untuk <span>setiap nomor surat</span></h2>
+  <p class="lead">NUMORA menerbitkan nomor surat yang unik, berurutan, dan bisa diaudit untuk seluruh unit di instansi Anda.</p>
+
+  <div class="grid2" style="margin-top:7mm">
+    <div class="body">
+      <p class="drop">Bayangkan dua orang meminta nomor surat pada detik yang sama, lalu keduanya menerima nomor yang sama. NUMORA dibuat supaya hal itu tidak terjadi. Nomor tidak diberikan saat surat diajukan, melainkan saat approver menyetujuinya, dan penerbitannya terjadi dalam satu transaksi database yang tidak bisa terpecah.</p>
+      <p>Hasilnya, penolakan tidak meninggalkan celah urutan, dua approver tidak bisa menyetujui surat yang sama dua kali, dan nomor yang dibatalkan tidak pernah dipakai ulang. Setiap langkah tercatat di jejak audit.</p>
+      <p>Panduan ini memandu Anda dari mendaftarkan instansi sampai membaca format nomor. Setiap fungsi diberi kode <b>F01</b> sampai <b>F17</b> agar mudah dirujuk.</p>
+    </div>
+    <div>
+      <div class="pull">"Nomor terbit saat disetujui, bukan saat diajukan."</div>
+      <div class="grid2" style="margin-top:5mm">
+        <div class="card fact"><b>0</b><span>nomor bolong akibat penolakan</span></div>
+        <div class="card fact"><b>5</b><span>peran pengguna terpisah</span></div>
+        <div class="card fact"><b>6</b><span>token format nomor</span></div>
+        <div class="card fact"><b>17</b><span>fungsi terdokumentasi</span></div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:8mm;font-size:13pt">Di dalam edisi ini</h3>
+  <ul class="toc">
+    <li><span class="n">01</span>Landing page dan navigasi<span class="p">3</span></li>
+    <li><span class="n">02</span>Mendaftarkan instansi (F01)<span class="p">5</span></li>
+    <li><span class="n">03</span>Masuk dan lupa password (F02, F03)<span class="p">6</span></li>
+    <li><span class="n">04</span>Atur ulang password dan aktivasi undangan (F04, F05)<span class="p">7</span></li>
+    <li><span class="n">05</span>Dashboard dan keluar (F06)<span class="p">8</span></li>
+    <li><span class="n">06</span>Alur surat dari pengajuan sampai nomor (F07 sampai F12)<span class="p">9</span></li>
+    <li><span class="n">07</span>Peran dan hak akses<span class="p">10</span></li>
+    <li><span class="n">08</span>Format nomor dan jenis surat (F13, F14)<span class="p">11</span></li>
+    <li><span class="n">09</span>Pengguna, audit, dan kelola instansi (F15 sampai F17)<span class="p">12</span></li>
+    <li><span class="n">10</span>Keamanan, tanya jawab, dan pemecahan masalah<span class="p">13</span></li>
+  </ul>
+  <div class="folio"><span><b>NUMORA</b> Panduan Pengguna</span><span>2</span></div>
+</section>
+
+<!-- 3. LANDING PAGE -->
+<section class="page">
+  <div class="kicker">Bagian 01</div>
+  <h2 class="title">Landing page: <span>pintu masuk NUMORA</span></h2>
+  <p class="lead">Buka <b>numora.ailabs.or.id</b> dan Anda tiba di halaman ini. Dari sini Anda bisa masuk, mendaftar, atau mengenal fitur lebih dulu.</p>
+
+  <div class="shot" style="margin-top:6mm;padding-top:46.9%"><img src="img/landing-top.png" style="position:absolute;left:0;top:0" alt="Landing page">
+    <i class="mk" style="left:7%;top:5.7%">1</i><i class="mk" style="left:66.3%;top:11%">2</i><i class="mk" style="left:72%;top:11%">3</i><i class="mk" style="left:79.8%;top:11%">4</i><i class="mk" style="left:87.6%;top:11%">5</i><i class="mk" style="left:15.8%;top:94%">6</i><i class="mk" style="left:27.8%;top:94%">7</i><i class="mk" style="left:87.3%;top:33%">8</i>
+  </div>
+  <div class="cap">Gambar 1. Bagian atas landing page. Nomor pada kartu diketik otomatis bergantian.</div>
+
+  <ul class="legend" style="margin-top:5mm;grid-template-columns:1fr 1fr;column-gap:7mm">
+    <li><span class="k">1</span><span><b>Logo dan nama.</b> Klik kapan saja untuk kembali ke halaman utama.</span></li>
+    <li><span class="k">2</span><span><b>Menu Fitur.</b> Menggulir ke daftar keunggulan.</span></li>
+    <li><span class="k">3</span><span><b>Menu Cara kerja.</b> Menggulir ke tiga langkah alur surat.</span></li>
+    <li><span class="k">4</span><span><b>Tombol Daftar.</b> Membuka formulir pendaftaran instansi (F01).</span></li>
+    <li><span class="k">5</span><span><b>Tombol Masuk.</b> Membuka halaman login (F02).</span></li>
+    <li><span class="k">6</span><span><b>Mulai gunakan.</b> Pintasan ke halaman login.</span></li>
+    <li><span class="k">7</span><span><b>Lihat fitur.</b> Menggulir ke bagian fitur.</span></li>
+    <li><span class="k">8</span><span><b>Kartu contoh nomor.</b> Memperlihatkan bentuk nomor yang akan Anda terima.</span></li>
+  </ul>
+  <div class="tip" style="margin-top:5mm"><b class="h">Tahukah Anda</b>Landing page menghormati pengaturan "kurangi gerakan" di perangkat Anda. Bila diaktifkan, semua animasi dimatikan dan konten langsung tampil.</div>
+  <div class="folio"><span><b>NUMORA</b> Panduan Pengguna</span><span>3</span></div>
+</section>
+
+<!-- 4. LANDING PAGE BAGIAN BAWAH -->
+<section class="page">
+  <div class="kicker">Bagian 01 &middot; lanjutan</div>
+  <h2 class="title">Fitur, cara kerja, <span>dan ajakan bergabung</span></h2>
+
+  <div class="crop" style="padding-top:53.9%;margin-top:5mm"><img src="img/landing-full.png" style="top:-136.2%" alt="Fitur"></div>
+  <div class="cap">Gambar 2. Enam keunggulan NUMORA.</div>
+  <div class="grid2" style="margin-top:6mm">
+    <div>
+      <div class="crop" style="padding-top:29.7%"><img src="img/landing-full.png" style="top:-457.9%" alt="Cara kerja"></div>
+      <div class="cap">Gambar 3. Tiga langkah: Ajukan, Setujui, Lacak.</div>
+    </div>
+    <div>
+      <div class="crop" style="padding-top:25%"><img src="img/landing-full.png" style="top:-690.6%" alt="Ajakan"></div>
+      <div class="cap">Gambar 4. Ajakan masuk atau mendaftarkan instansi.</div>
+    </div>
+  </div>
+  <div class="note" style="margin-top:6mm"><b class="h">Bagian penutup</b>Di akhir halaman ada dua tombol: <b>Masuk ke NUMORA</b> dan <b>Daftarkan instansi</b>. Pengguna yang sudah memiliki akun cukup memilih yang pertama.</div>
+  <div class="folio"><span><b>NUMORA</b> Panduan Pengguna</span><span>4</span></div>
+</section>
+
+<!-- 5. DAFTAR INSTANSI -->
+<section class="page">
+  <span class="fid">F01</span>
+  <h2 class="title">Mendaftarkan <span>instansi baru</span></h2>
+  <p class="lead">Pendaftar otomatis menjadi <b>admin instansi</b> yang pertama. Dari akun itu Anda mengundang rekan kerja.</p>
+
+  <div class="grid2" style="margin-top:6mm;grid-template-columns:1.05fr 1fr;align-items:start">
+    <div>
+      <div class="shot">
+        <img src="img/register.png" alt="Form daftar">
+        <i class="mk" style="left:60%;top:10%">1</i>
+        <i class="mk" style="left:72%;top:36.4%">2</i>
+        <i class="mk" style="left:72%;top:45.6%">3</i>
+        <i class="mk" style="left:72%;top:54.8%">4</i>
+        <i class="mk" style="left:72%;top:64%">5</i>
+        <i class="mk" style="left:72%;top:72%">6</i>
+        <i class="mk" style="left:72%;top:82%">7</i>
+        <i class="mk" style="left:68%;top:88%">8</i>
+      </div>
+      <div class="cap">Gambar 5. Halaman /register</div>
+    </div>
+    <div>
+      <ul class="legend">
+        <li><span class="k">1</span><span><b>Logo AILO.</b> Klik untuk kembali ke landing page.</span></li>
+        <li><span class="k">2</span><span><b>Nama instansi.</b> Nama resmi, 2 sampai 120 karakter. Sistem membuat alamat singkat (slug) dari nama ini.</span></li>
+        <li><span class="k">3</span><span><b>Nama Anda.</b> Tampil di dashboard dan jejak audit.</span></li>
+        <li><span class="k">4</span><span><b>Email.</b> Dipakai untuk masuk. Satu email hanya untuk satu instansi.</span></li>
+        <li><span class="k">5</span><span><b>Password.</b> Minimal 10 karakter.</span></li>
+        <li><span class="k">6</span><span><b>Ulangi password.</b> Harus sama persis dengan kolom 5.</span></li>
+        <li><span class="k">7</span><span><b>Tombol Daftar.</b> Membuat instansi dan akun admin, lalu langsung masuk ke dashboard.</span></li>
+        <li><span class="k">8</span><span><b>Tautan Masuk.</b> Untuk yang sudah punya akun.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin:7mm 0 3mm;font-size:12pt">Langkah singkat</h3>
+  <ol class="steps">
+    <li>Buka <code>/register</code> dari tombol <b>Daftar</b> di landing page.</li>
+    <li>Isi kelima kolom, lalu tekan <b>Daftar</b>.</li>
+    <li>Anda langsung masuk ke dashboard sebagai <b>admin instansi</b>.</li>
+  </ol>
+  <div class="tip" style="margin-top:5mm"><b class="h">Bila gagal</b>"Email ini sudah terdaftar" berarti email dipakai di instansi lain. "Pendaftaran mandiri sedang ditutup" berarti administrator server menonaktifkan pendaftaran terbuka; minta undangan dari admin instansi Anda.</div>
+  <div class="folio"><span><b>NUMORA</b> Panduan Pengguna</span><span>5</span></div>
+</section>
+
+<!-- 6. LOGIN + LUPA PASSWORD -->
+<section class="page">
+  <span class="fid">F02</span><span class="fid" style="margin-left:2mm">F03</span>
+  <h2 class="title">Masuk dan <span>lupa password</span></h2>
+  <p class="lead">Dua halaman yang paling sering Anda buka. Keduanya sederhana, tetapi dijaga ketat.</p>
+
+  <div class="grid2" style="margin-top:6mm;align-items:start">
+    <div>
+      <div class="shot">
+        <img src="img/login.png" alt="Login">
+        <i class="mk" style="left:25%;top:44.4%">1</i>
+        <i class="mk" style="left:25%;top:55.6%">2</i>
+        <i class="mk" style="left:72%;top:61%">3</i>
+        <i class="mk" style="left:25%;top:67.4%">4</i>
+        <i class="mk" style="left:79%;top:77.2%">5</i>
+      </div>
+      <div class="cap">Gambar 6. /login (F02)</div>
+    </div>
+    <div>
+      <div class="shot">
+        <img src="img/forgot.png" alt="Lupa password">
+        <i class="mk" style="left:25%;top:52%">6</i>
+        <i class="mk" style="left:25%;top:61.4%">7</i>
+        <i class="mk" style="left:72%;top:74%">8</i>
+      </div>
+      <div class="cap">Gambar 7. /forgot-password (F03)</div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:6mm;align-items:start">
+    <ul class="legend">
+      <li><span class="k">1</span><span><b>Email</b> akun Anda.</span></li>
+      <li><span class="k">2</span><span><b>Password.</b></span></li>
+      <li><span class="k">3</span><span><b>Lupa password?</b> Menuju F03.</span></li>
+      <li><span class="k">4</span><span><b>Masuk.</b> Bila benar, Anda tiba di dashboard.</span></li>
+      <li><span class="k">5</span><span><b>Daftar instansi.</b> Menuju F01.</span></li>
+    </ul>
+    <ul class="legend">
+      <li><span class="k">6</span><span><b>Email akun.</b> Tulis email yang Anda pakai untuk masuk.</span></li>
+      <li><span class="k">7</span><span><b>Kirim tautan.</b> Tautan atur ulang dikirim ke email, berlaku <b>1 jam</b>.</span></li>
+      <li><span class="k">8</span><span><b>Kembali ke halaman masuk.</b></span></li>
+    </ul>
+  </div>
+
+  <div class="grid2" style="margin-top:6mm">
+    <div class="note"><b class="h">Penguncian akun</b>Lima kali salah password, akun dikunci <b>15 menit</b>. Menunggu atau mengatur ulang password akan membukanya.</div>
+    <div class="tip"><b class="h">Privasi</b>Halaman lupa password selalu menjawab sama, baik email terdaftar atau tidak, agar orang lain tidak bisa menebak siapa saja penggunanya. Satu permintaan per menit per akun.</div>
+  </div>
+  <div class="folio"><span><b>NUMORA</b> Panduan Pengguna</span><span>6</span></div>
+</section>
+
+<!-- 7. RESET + AKTIVASI -->
+<section class="page">
+  <span class="fid">F04</span><span class="fid" style="margin-left:2mm">F05</span>
+  <h2 class="title">Atur ulang password <span>dan aktivasi undangan</span></h2>
+  <p class="lead">Kedua halaman dibuka dari tautan di email, jadi tidak ada menu untuk menuju ke sana secara langsung.</p>
+
+  <div class="grid2" style="margin-top:6mm;align-items:start">
+    <div>
+      <div class="shot">
+        <img src="img/reset.png" alt="Reset password">
+        <i class="mk" style="left:25%;top:46.1%">1</i>
+        <i class="mk" style="left:25%;top:59.3%">2</i>
+        <i class="mk" style="left:25%;top:68.7%">3</i>
+      </div>
+      <div class="cap">Gambar 8. /reset-password?token=... (F04)</div>
+    </div>
+    <div>
+      <div class="shot">
+        <img src="img/accept.png" alt="Aktivasi akun">
+        <i class="mk" style="left:25%;top:46.1%">4</i>
+        <i class="mk" style="left:25%;top:59.3%">5</i>
+        <i class="mk" style="left:25%;top:68.7%">6</i>
+      </div>
+      <div class="cap">Gambar 9. /accept-invite?token=... (F05)</div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:6mm;align-items:start">
+    <div>
+      <h3 style="font-size:11pt;margin-bottom:2mm">F04 Atur ulang password</h3>
+      <ul class="legend">
+        <li><span class="k">1</span><span><b>Password baru</b>, minimal 10 karakter.</span></li>
+        <li><span class="k">2</span><span><b>Ulangi password</b> yang sama.</span></li>
+        <li><span class="k">3</span><span><b>Simpan password.</b> Password diganti, kunci akun dibuka, dan semua tautan reset lain milik Anda dimatikan.</span></li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="font-size:11pt;margin-bottom:2mm">F05 Aktivasi undangan</h3>
+      <ul class="legend">
+        <li><span class="k">4</span><span><b>Password baru</b> untuk akun Anda.</span></li>
+        <li><span class="k">5</span><span><b>Ulangi password.</b></span></li>
+        <li><span class="k">6</span><span><b>Aktifkan akun.</b> Akun dibuat sesuai peran yang ditetapkan pengundang, lalu Anda langsung masuk.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:6mm">
+    <div class="note"><b class="h">Masa berlaku</b>Tautan atur ulang berlaku <b>1 jam</b>. Tautan undangan berlaku <b>72 jam</b>. Keduanya hanya bisa dipakai <b>satu kali</b>.</div>
+    <div class="tip"><b class="h">Tautan kedaluwarsa?</b>Untuk atur ulang password, minta tautan baru di halaman lupa password. Untuk undangan, minta admin instansi mengirim ulang undangan.</div>
+  </div>
+  <div class="folio"><span><b>NUMORA</b> Panduan Pengguna</span><span>7</span></div>
+</section>
+
+<!-- 8. DASHBOARD + KELUAR -->
+<section class="page">
+  <span class="fid">F06</span>
+  <h2 class="title">Dashboard <span>dan keluar</span></h2>
+  <p class="lead">Setelah masuk, Anda tiba di <code>/dashboard</code>. Halaman ini membuktikan sesi dan peran Anda bekerja.</p>
+
+  <div style="position:relative;margin-top:6mm"><div class="card" style="padding:0;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:4mm 6mm;background:rgba(244,247,251,.9);border-bottom:1px solid var(--line)">
+      <div style="display:flex;align-items:center;gap:3mm;font-weight:700;letter-spacing:.06em"><img src="../../public/logo-ailo.png" style="width:9mm;border-radius:2mm" alt=""> NUMORA</div>
+      <div style="display:flex;align-items:center;gap:4mm;font-size:8.5pt;color:var(--mute)">Nama Anda &middot; tenant_admin <span style="border:1px solid var(--line);border-radius:2.5mm;padding:1.6mm 4mm;color:var(--teal);font-weight:600;background:#fff">Keluar</span></div>
+    </div>
+    <div style="padding:7mm 6mm 9mm;background:var(--cloud)">
+      <div style="font-size:18pt;font-weight:700">Dashboard</div>
+      <div class="card" style="margin-top:3mm;font-size:9pt">Antarmuka belum dibuat. Semua fungsi sudah tersedia lewat API.</div>
+    </div>
+  </div>
+  <i class="mk" style="left:3%;top:10%">A</i><i class="mk" style="left:76%;top:10%">B</i><i class="mk" style="left:96%;top:10%">C</i></div>
+  <div class="cap">Gambar 10. Ilustrasi susunan dashboard saat ini (digambar ulang, bukan tangkapan layar akun nyata).</div>
+
+  <ul class="legend" style="margin-top:5mm">
+    <li><span class="k">A</span><span><b>Logo NUMORA.</b> Kembali ke landing page.</span></li>
+    <li><span class="k">B</span><span><b>Nama dan peran.</b> Menunjukkan siapa yang sedang masuk dan peran Anda.</span></li>
+    <li><span class="k">C</span><span><b>Keluar.</b> Mengakhiri sesi dan <b>langsung membawa Anda ke landing page</b>.</span></li>
+  </ul>
+
+  <div class="note" style="margin-top:6mm"><b class="h">Status antarmuka</b>Saat ini layar yang sudah jadi adalah landing page, daftar, masuk, lupa dan atur ulang password, aktivasi undangan, serta dashboard sederhana. Pengajuan, persetujuan, dan pengelolaan (F07 sampai F17) sudah berfungsi penuh di sisi server lewat API dan akan mendapat layar sendiri pada rilis berikutnya.</div>
+  <div class="tip" style="margin-top:4mm"><b class="h">Keluar dengan aman</b>Setelah menekan Keluar, cookie sesi dihapus. Bila Anda memakai komputer bersama, pastikan landing page tampil sebelum meninggalkan perangkat.</div>
+  <div class="folio"><span><b>NUMORA</b> Panduan Pengguna</span><span>8</span></div>
+</section>
+
+<!-- 9. ALUR SURAT -->
+<section class="page">
+  <span class="fid api">F07 sampai F12</span>
+  <h2 class="title">Dari pengajuan <span>sampai nomor terbit</span></h2>
+  <p class="lead">Inti NUMORA: empat tahap, satu aturan emas. Nomor hanya lahir saat persetujuan.</p>
+
+  <div class="flow" style="margin-top:8mm">
+    <div class="node"><i>1</i><b>Ajukan</b>Staf mengisi perihal, tujuan, tanggal.<br><span class="st p">pending</span><br><small>Belum ada nomor</small></div>
+    <div class="node"><i>2</i><b>Setujui</b>Approver menyetujui, nomor terbit atomik.<br><span class="st a">approved</span></div>
+    <div class="node"><i>3</i><b>Tolak</b>Approver menolak dengan alasan.<br><span class="st r">rejected</span><br><small>Urutan tidak terpakai</small></div>
+    <div class="node"><i>4</i><b>Batalkan</b>Admin membatalkan nomor terbit.<br><span class="st x">cancelled</span><br><small>Nomor tidak dipakai ulang</small></div>
+  </div>
+
+  <h3 style="margin:8mm 0 3mm;font-size:12pt">Fungsi pada alur surat</h3>
+  <table>
+    <tr><th style="width:12mm">Kode</th><th>Fungsi</th><th>Siapa</th><th>Syarat</th></tr>
+    <tr><td><b>F07</b></td><td><b>Ajukan nomor.</b> Isi jenis surat, unit, perihal (maks 300), tujuan (maks 300), tanggal surat.</td><td>Admin instansi, admin unit, staf</td><td>Jenis surat aktif. Staf dan admin unit hanya untuk unitnya.</td></tr>
+    <tr><td><b>F08</b></td><td><b>Setujui</b> dan terbitkan nomor.</td><td>Approver jenis surat, admin instansi</td><td>Status masih pending.</td></tr>
+    <tr><td><b>F09</b></td><td><b>Tolak</b> pengajuan. Wajib alasan 3 sampai 500 karakter.</td><td>Approver, admin instansi</td><td>Status masih pending.</td></tr>
+    <tr><td><b>F10</b></td><td><b>Ajukan pembatalan</b> nomor terbit, dengan alasan.</td><td>Pemohon, admin unit terkait, admin instansi</td><td>Status approved, belum pernah diajukan.</td></tr>
+    <tr><td><b>F11</b></td><td><b>Batalkan nomor.</b> Nomor tetap tercatat.</td><td>Admin instansi, admin unit terkait</td><td>Status approved.</td></tr>
+    <tr><td><b>F12</b></td><td><b>Daftar dan cari surat.</b> Filter status, jenis surat, kata kunci; 20 per halaman (maks 100).</td><td>Semua peran instansi</td><td>Cakupan sesuai peran.</td></tr>
+  </table>
+
+  <div class="grid2" style="margin-top:6mm">
+    <div class="note"><b class="h">Dua approver bersamaan</b>Bila dua approver menekan Setujui di detik yang sama, hanya yang pertama berhasil. Yang kedua menerima "Surat ini sudah diproses" dan tidak ada nomor yang terbuang.</div>
+    <div class="tip"><b class="h">Email otomatis</b>Approver dan admin instansi diberi tahu saat ada pengajuan baru. Pemohon diberi tahu saat disetujui (beserta nomor) atau ditolak (beserta alasan).</div>
+  </div>
+  <div class="folio"><span><b>NUMORA</b> Panduan Pengguna</span><span>9</span></div>
+</section>
+
+<!-- 10. PERAN -->
+<section class="page">
+  <div class="kicker">Bagian 07</div>
+  <h2 class="title">Siapa boleh <span>melakukan apa</span></h2>
+  <p class="lead">Hak akses dibaca ulang dari database pada setiap permintaan, jadi perubahan peran atau penonaktifan akun berlaku seketika.</p>
+
+  <table style="margin-top:6mm">
+    <tr><th>Fungsi</th><th class="c">Admin instansi</th><th class="c">Admin unit</th><th class="c">Staf</th><th class="c">Auditor</th><th class="c">Super admin</th></tr>
+    <tr><td>Ajukan nomor (F07)</td><td class="c yes">ya</td><td class="c yes">ya, unitnya</td><td class="c yes">ya, unitnya</td><td class="c no">tidak</td><td class="c no">tidak</td></tr>
+    <tr><td>Setujui dan tolak (F08, F09)</td><td class="c yes">ya, semua jenis</td><td class="c">bila ditunjuk</td><td class="c">bila ditunjuk</td><td class="c no">tidak</td><td class="c no">tidak</td></tr>
+    <tr><td>Ajukan pembatalan (F10)</td><td class="c yes">ya</td><td class="c yes">ya, unitnya</td><td class="c">hanya miliknya</td><td class="c no">tidak</td><td class="c no">tidak</td></tr>
+    <tr><td>Batalkan nomor (F11)</td><td class="c yes">ya</td><td class="c yes">ya, unitnya</td><td class="c no">tidak</td><td class="c no">tidak</td><td class="c no">tidak</td></tr>
+    <tr><td>Lihat surat (F12)</td><td class="c yes">semua</td><td class="c">unit, miliknya, yang ia setujui</td><td class="c">miliknya, yang ia setujui</td><td class="c yes">semua</td><td class="c no">tidak</td></tr>
+    <tr><td>Kelola jenis surat dan unit (F13, F14)</td><td class="c yes">ya</td><td class="c no">baca</td><td class="c no">baca</td><td class="c no">baca</td><td class="c no">tidak</td></tr>
+    <tr><td>Undang pengguna (F15)</td><td class="c yes">ya</td><td class="c no">tidak</td><td class="c no">tidak</td><td class="c no">tidak</td><td class="c no">tidak</td></tr>
+    <tr><td>Lihat audit (F16)</td><td class="c yes">ya</td><td class="c no">tidak</td><td class="c no">tidak</td><td class="c yes">ya</td><td class="c no">tidak</td></tr>
+    <tr><td>Kelola instansi (F17)</td><td class="c no">tidak</td><td class="c no">tidak</td><td class="c no">tidak</td><td class="c no">tidak</td><td class="c yes">ya</td></tr>
+  </table>
+
+  <div class="grid2" style="margin-top:7mm">
+    <div class="card body"><b>Approver bukan peran.</b><p>Approver adalah daftar orang yang ditunjuk pada tiap jenis surat. Seorang staf bisa menjadi approver untuk Surat Keputusan, tetapi bukan untuk MoU. Admin instansi selalu boleh menyetujui semua jenis.</p></div>
+    <div class="card body"><b>Super admin dipisah.</b><p>Super admin hanya mengelola instansi. Ia tidak dapat membuka isi surat milik instansi mana pun, sehingga data tiap instansi tetap rahasia.</p></div>
+  </div>
+  <div class="tip" style="margin-top:5mm"><b class="h">Satu akun, satu instansi</b>Email bersifat unik di seluruh sistem. Bila Anda perlu bekerja di dua instansi, gunakan dua alamat email berbeda.</div>
+  <div class="folio"><span><b>NUMORA</b> Panduan Pengguna</span><span>10</span></div>
+</section>
+
+<!-- 11. FORMAT NOMOR -->
+<section class="page">
+  <span class="fid api">F13</span><span class="fid api" style="margin-left:2mm">F14</span>
+  <h2 class="title">Format nomor <span>dan jenis surat</span></h2>
+  <p class="lead">Admin instansi menyusun pola nomor sekali per jenis surat. Setelah itu NUMORA mengisinya otomatis.</p>
+
+  <div class="card" style="margin-top:6mm;text-align:center;padding:7mm">
+    <div style="font-size:8.5pt;color:var(--mute);margin-bottom:2mm">Pola</div>
+    <div style="font-family:Consolas,monospace;font-size:14pt;color:var(--teal-d);font-weight:700">{urut}/{jenis}/{unit}/{bulan_romawi}/{tahun}</div>
+    <div style="font-size:8.5pt;color:var(--mute);margin:4mm 0 2mm">Hasil</div>
+    <div style="font-size:24pt;font-weight:800;color:var(--org);letter-spacing:.01em">012/MOU/LEGAL/X/2026</div>
+  </div>
+
+  <h3 style="margin:7mm 0 3mm;font-size:12pt">Token yang tersedia</h3>
+  <table>
+    <tr><th>Token</th><th>Arti</th><th>Contoh</th></tr>
+    <tr><td><code>{urut}</code></td><td>Nomor urut, diisi nol di depan sesuai padding (1 sampai 8 digit)</td><td>012</td></tr>
+    <tr><td><code>{jenis}</code></td><td>Kode jenis surat</td><td>MOU</td></tr>
+    <tr><td><code>{unit}</code></td><td>Kode unit kerja</td><td>LEGAL</td></tr>
+    <tr><td><code>{bulan}</code></td><td>Bulan dua digit</td><td>10</td></tr>
+    <tr><td><code>{bulan_romawi}</code></td><td>Bulan angka romawi</td><td>X</td></tr>
+    <tr><td><code>{tahun}</code></td><td>Tahun empat digit</td><td>2026</td></tr>
+  </table>
+
+  <div class="grid2" style="margin-top:6mm">
+    <div>
+      <h3 style="font-size:11pt;margin-bottom:2mm">Kapan urutan kembali ke 1?</h3>
+      <ul class="legend">
+        <li><span class="k">1</span><span><b>Tahunan.</b> Wajib memuat <code>{tahun}</code>.</span></li>
+        <li><span class="k">2</span><span><b>Bulanan.</b> Wajib memuat <code>{tahun}</code> dan <code>{bulan}</code> atau <code>{bulan_romawi}</code>.</span></li>
+        <li><span class="k">3</span><span><b>Tanpa reset.</b> Urutan terus bertambah.</span></li>
+        <li><span class="k">4</span><span><b>Per unit.</b> Urutan dipisah tiap unit; wajib memuat <code>{unit}</code>.</span></li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="font-size:11pt;margin-bottom:2mm">Aturan penting</h3>
+      <ul class="legend">
+        <li><span class="k">!</span><span><code>{urut}</code> harus muncul <b>tepat satu kali</b>.</span></li>
+        <li><span class="k">!</span><span>Setelah ada surat, reset dan per unit <b>terkunci</b>.</span></li>
+        <li><span class="k">!</span><span>Mengubah format menaikkan versi; nomor lama <b>tidak berubah</b>.</span></li>
+        <li><span class="k">!</span><span>Tahun dan bulan dihitung pada <b>zona waktu instansi</b> (default WIB).</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="note" style="margin-top:5mm"><b class="h">F13 dan F14</b><b>F13 Kelola jenis surat</b>: nama, kode, pola, padding, reset, per unit, daftar approver, aktif atau nonaktif. <b>F14 Kelola unit kerja</b>: nama dan kode unit (huruf besar, angka, titik, strip, maks 20).</div>
+  <div class="folio"><span><b>NUMORA</b> Panduan Pengguna</span><span>11</span></div>
+</section>
+
+<!-- 12. PENGGUNA, AUDIT, INSTANSI + REFERENSI -->
+<section class="page">
+  <span class="fid api">F15</span><span class="fid api" style="margin-left:2mm">F16</span><span class="fid api" style="margin-left:2mm">F17</span>
+  <h2 class="title">Pengguna, audit, <span>dan referensi fungsi</span></h2>
+
+  <div class="grid3" style="margin-top:4mm">
+    <div class="card body"><b>F15 Undang pengguna</b><p>Admin instansi memasukkan email, nama, peran, dan unit. Undangan dikirim lewat email, berlaku 72 jam. Admin unit wajib memiliki unit.</p></div>
+    <div class="card body"><b>F16 Jejak audit</b><p>Daftar semua aksi: pengajuan, persetujuan, penolakan, pembatalan, undangan, reset password. Hanya admin instansi dan auditor.</p></div>
+    <div class="card body"><b>F17 Kelola instansi</b><p>Super admin membuat instansi dan mengundang admin pertamanya, serta melihat daftar instansi.</p></div>
+  </div>
+
+  <h3 style="margin:5mm 0 2.5mm;font-size:12pt">Tabel referensi F01 sampai F17</h3>
+  <table class="tight">
+    <tr><th style="width:11mm">Kode</th><th>Fungsi</th><th>Alamat</th><th>Layar</th></tr>
+    <tr><td><b>F01</b></td><td>Daftar instansi</td><td><code>/register</code></td><td><span class="badge">tersedia</span></td></tr>
+    <tr><td><b>F02</b></td><td>Masuk</td><td><code>/login</code></td><td><span class="badge">tersedia</span></td></tr>
+    <tr><td><b>F03</b></td><td>Lupa password</td><td><code>/forgot-password</code></td><td><span class="badge">tersedia</span></td></tr>
+    <tr><td><b>F04</b></td><td>Atur ulang password</td><td><code>/reset-password</code></td><td><span class="badge">tersedia</span></td></tr>
+    <tr><td><b>F05</b></td><td>Aktivasi undangan</td><td><code>/accept-invite</code></td><td><span class="badge">tersedia</span></td></tr>
+    <tr><td><b>F06</b></td><td>Keluar</td><td><code>POST /api/auth/logout</code></td><td><span class="badge">tersedia</span></td></tr>
+    <tr><td><b>F07</b></td><td>Ajukan nomor</td><td><code>POST /api/letters</code></td><td><span class="badge o">API</span></td></tr>
+    <tr><td><b>F08</b></td><td>Setujui</td><td><code>POST /api/letters/:id/approve</code></td><td><span class="badge o">API</span></td></tr>
+    <tr><td><b>F09</b></td><td>Tolak</td><td><code>POST /api/letters/:id/reject</code></td><td><span class="badge o">API</span></td></tr>
+    <tr><td><b>F10</b></td><td>Ajukan pembatalan</td><td><code>POST /api/letters/:id/cancel-request</code></td><td><span class="badge o">API</span></td></tr>
+    <tr><td><b>F11</b></td><td>Batalkan nomor</td><td><code>POST /api/letters/:id/cancel</code></td><td><span class="badge o">API</span></td></tr>
+    <tr><td><b>F12</b></td><td>Daftar dan cari surat</td><td><code>GET /api/letters</code></td><td><span class="badge o">API</span></td></tr>
+    <tr><td><b>F13</b></td><td>Kelola jenis surat</td><td><code>/api/letter-types</code></td><td><span class="badge o">API</span></td></tr>
+    <tr><td><b>F14</b></td><td>Kelola unit kerja</td><td><code>/api/units</code></td><td><span class="badge o">API</span></td></tr>
+    <tr><td><b>F15</b></td><td>Undang pengguna</td><td><code>POST /api/users/invite</code></td><td><span class="badge o">API</span></td></tr>
+    <tr><td><b>F16</b></td><td>Jejak audit</td><td><code>GET /api/audit</code></td><td><span class="badge o">API</span></td></tr>
+    <tr><td><b>F17</b></td><td>Kelola instansi</td><td><code>/api/admin/tenants</code></td><td><span class="badge o">API</span></td></tr>
+  </table>
+  <div class="note" style="margin-top:4mm"><b class="h">Membaca tabel</b><span class="badge">tersedia</span> berarti sudah punya halaman yang bisa dipakai di browser. <span class="badge o">API</span> berarti fungsi sudah berjalan di server tetapi layarnya belum dibuat.</div>
+  <div class="folio"><span><b>NUMORA</b> Panduan Pengguna</span><span>12</span></div>
+</section>
+
+<!-- 13. KEAMANAN + FAQ -->
+<section class="page">
+  <div class="kicker">Bagian 10</div>
+  <h2 class="title">Aman, <span>dan bila ada kendala</span></h2>
+
+  <div class="grid2" style="margin-top:4mm">
+    <div class="card body">
+      <b style="font-size:11pt;color:var(--teal-d)">Cara NUMORA menjaga data Anda</b>
+      <ul class="legend" style="margin-top:3mm">
+        <li><span class="k">1</span><span>Sesi disimpan di cookie httpOnly selama <b>12 jam</b>.</span></li>
+        <li><span class="k">2</span><span>Password disimpan sebagai hash bcrypt, tidak pernah dalam bentuk asli.</span></li>
+        <li><span class="k">3</span><span>Akun dikunci 15 menit setelah 5 kali salah password.</span></li>
+        <li><span class="k">4</span><span>Tautan undangan dan reset berupa token sekali pakai.</span></li>
+        <li><span class="k">5</span><span>Data tiap instansi dipisahkan di setiap permintaan.</span></li>
+        <li><span class="k">6</span><span>Koneksi memakai HTTPS dengan sertifikat Let's Encrypt.</span></li>
+      </ul>
+    </div>
+    <div class="card body">
+      <b style="font-size:11pt;color:var(--teal-d)">Kebiasaan baik</b>
+      <ul class="legend" style="margin-top:3mm">
+        <li><span class="k">1</span><span>Pakai password panjang yang unik, minimal 10 karakter.</span></li>
+        <li><span class="k">2</span><span>Jangan bagikan tautan undangan atau reset.</span></li>
+        <li><span class="k">3</span><span>Tekan Keluar setiap selesai di komputer bersama.</span></li>
+        <li><span class="k">4</span><span>Tulis alasan penolakan dan pembatalan dengan jelas; alasan masuk jejak audit.</span></li>
+        <li><span class="k">5</span><span>Tunjuk lebih dari satu approver per jenis surat agar alur tidak terhenti.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin:7mm 0 3mm;font-size:12pt">Tanya jawab</h3>
+  <table>
+    <tr><th style="width:62mm">Masalah</th><th>Penyebab dan solusi</th></tr>
+    <tr><td><b>"Email atau password salah"</b></td><td>Periksa huruf besar dan kecil. Bila lupa, gunakan <b>Lupa password</b>.</td></tr>
+    <tr><td><b>"Akun dikunci sementara"</b></td><td>Terlalu banyak percobaan. Tunggu 15 menit atau atur ulang password.</td></tr>
+    <tr><td><b>Email atur ulang tidak datang</b></td><td>Periksa folder spam. Hanya satu permintaan per menit, dan hanya akun aktif yang menerima email.</td></tr>
+    <tr><td><b>"Tautan tidak valid atau sudah kedaluwarsa"</b></td><td>Tautan sudah dipakai atau lewat masa berlaku. Minta tautan baru.</td></tr>
+    <tr><td><b>"Email ini sudah terdaftar"</b></td><td>Email sudah dipakai. Satu email hanya untuk satu instansi.</td></tr>
+    <tr><td><b>"Surat ini sudah diproses"</b></td><td>Approver lain sudah menyetujui atau menolak lebih dulu. Segarkan daftar.</td></tr>
+    <tr><td><b>"Anda bukan approver untuk jenis surat ini"</b></td><td>Minta admin instansi menambahkan Anda sebagai approver pada jenis surat tersebut.</td></tr>
+    <tr><td><b>"Instansi dinonaktifkan"</b></td><td>Instansi ditangguhkan oleh super admin. Hubungi administrator.</td></tr>
+  </table>
+  <div class="tip" style="margin-top:5mm"><b class="h">Butuh bantuan?</b>Hubungi admin instansi Anda lebih dulu. Untuk masalah teknis server, sampaikan kode fungsi (misalnya F08) dan pesan galat yang tampil.</div>
+  <div class="folio"><span><b>NUMORA</b> Panduan Pengguna</span><span>13</span></div>
+</section>
+
+<!-- 14. SAMPUL BELAKANG -->
+<section class="page back">
+  <div class="in">
+    <div class="logo"><img src="../../public/logo-ailo.png" alt="AILO"></div>
+    <h2>NUMORA</h2>
+    <p>Numbering, Simplified. Nomor surat yang unik, berurutan, dan terlacak untuk setiap unit instansi Anda.</p>
+    <div class="url">numora.ailabs.or.id</div>
+    <p style="font-size:9pt;opacity:.8;margin-top:10mm">AILO | Telkom University's Center of Excellence<br>Panduan Pengguna, Edisi 1, Oktober 2026</p>
+  </div>
+</section>
+
+</body>
+</html>
