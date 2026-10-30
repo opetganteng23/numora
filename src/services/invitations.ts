@@ -66,6 +66,39 @@ export async function inviteUser(input: InviteInput) {
   return { invitationId: String(invitation._id), expiresAt, emailSent };
 }
 
+/** Undangan yang belum dipakai dan belum kedaluwarsa (tanpa token). */
+export async function listPendingInvitations(tenantId: string) {
+  return Invitation.find({ tenantId, usedAt: null, expiresAt: { $gt: new Date() } })
+    .select("email name role unitId expiresAt createdAt")
+    .sort({ createdAt: -1 })
+    .lean();
+}
+
+/** Kirim ulang: token lama dimatikan, token baru dibuat dengan masa berlaku baru. */
+export async function resendInvitation(tenantId: string, invitationId: string, actorId: string) {
+  if (!Types.ObjectId.isValid(invitationId)) throw new AppError(400, "ID tidak valid");
+  const tenant = await Tenant.findById(tenantId).select("name").lean();
+  if (!tenant) throw new AppError(404, "Instansi tidak ditemukan");
+
+  const token = randomBytes(32).toString("base64url");
+  const expiresAt = new Date(Date.now() + INVITE_TTL_MS);
+  const inv = await Invitation.findOneAndUpdate(
+    { _id: invitationId, tenantId, usedAt: null },
+    { $set: { tokenHash: sha256(token), expiresAt } },
+    { new: true },
+  );
+  if (!inv) throw new AppError(404, "Undangan tidak ditemukan atau sudah dipakai");
+  if (await User.exists({ email: inv.email })) throw new AppError(409, "Email ini sudah terdaftar");
+
+  const link = `${appUrl()}/accept-invite?token=${token}`;
+  const emailSent = await sendMail({
+    to: inv.email,
+    ...inviteMail({ name: inv.name, tenantName: tenant.name, link, expiresAt }),
+  });
+  await audit({ tenantId, actorId, action: "user.invite_resend", entityType: "Invitation", entityId: inv._id, meta: { email: inv.email } });
+  return { expiresAt, emailSent };
+}
+
 /** Pakai token undangan -> buat akun aktif. Token hanya bisa dipakai sekali (klaim atomik). */
 export async function acceptInvitation(token: string, password: string) {
   const now = new Date();

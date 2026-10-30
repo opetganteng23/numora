@@ -3,7 +3,7 @@ import { AppError, withRetry } from "@/lib/errors";
 import { issueNumber } from "@/lib/issue-number";
 import { withLock } from "@/lib/mutex";
 import { canApprove, canCancel, canCreateLetter, canRequestCancel, type TenantCtx } from "@/lib/rbac";
-import { Letter, LetterType, Tenant, Unit, User } from "@/models";
+import { AuditLog, Letter, LetterType, Tenant, Unit, User } from "@/models";
 import { audit } from "./audit";
 import { notifyApprovers, notifyDecision } from "./notify";
 
@@ -225,18 +225,23 @@ export interface ListLettersInput {
 
 const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+/** Cakupan surat untuk staf dan admin unit: milik sendiri, unitnya (admin unit), dan jenis yang ia approve. */
+async function scopeOr(ctx: TenantCtx): Promise<Record<string, unknown>[] | null> {
+  if (ctx.role !== "staff" && ctx.role !== "unit_admin") return null;
+  const tenantId = oid(ctx.tenantId);
+  const approvable = await LetterType.find({ tenantId, approverIds: oid(ctx.userId) }).distinct("_id");
+  const scope: Record<string, unknown>[] = [{ requesterId: oid(ctx.userId) }, { letterTypeId: { $in: approvable } }];
+  if (ctx.role === "unit_admin" && ctx.unitId) scope.push({ unitId: oid(ctx.unitId) });
+  return scope;
+}
+
 /** Daftar surat dengan cakupan sesuai peran. */
 export async function listLetters(ctx: TenantCtx, input: ListLettersInput) {
   const tenantId = oid(ctx.tenantId);
   const and: Record<string, unknown>[] = [{ tenantId }];
 
-  if (ctx.role === "staff" || ctx.role === "unit_admin") {
-    // Milik sendiri + (unit_admin) unitnya + jenis surat yang ia approve
-    const approvable = await LetterType.find({ tenantId, approverIds: oid(ctx.userId) }).distinct("_id");
-    const scope: Record<string, unknown>[] = [{ requesterId: oid(ctx.userId) }, { letterTypeId: { $in: approvable } }];
-    if (ctx.role === "unit_admin" && ctx.unitId) scope.push({ unitId: oid(ctx.unitId) });
-    and.push({ $or: scope });
-  }
+  const scope = await scopeOr(ctx);
+  if (scope) and.push({ $or: scope });
   // tenant_admin & auditor: semua surat instansi
 
   if (input.status) and.push({ status: input.status });
@@ -337,5 +342,31 @@ export async function getDashboard(ctx: TenantCtx) {
     year,
     recent: await enrich(ctx, recent),
     lastNumber: lastNumber?.number?.full ?? null,
+  };
+}
+
+/** Detail satu surat beserta riwayat keputusannya. Cakupan akses sama dengan daftar surat. */
+export async function getLetter(ctx: TenantCtx, letterId: string) {
+  const tenantId = oid(ctx.tenantId);
+  const and: Record<string, unknown>[] = [{ _id: oid(letterId), tenantId }];
+  const scope = await scopeOr(ctx);
+  if (scope) and.push({ $or: scope });
+
+  const letter = await Letter.findOne({ $and: and }).lean();
+  if (!letter) throw new AppError(404, "Surat tidak ditemukan");
+  const [enriched] = await enrich(ctx, [letter]);
+
+  const history = await AuditLog.find({ tenantId, entityType: "Letter", entityId: letter._id }).sort({ createdAt: 1 }).lean();
+  const ids = new Set<string>();
+  for (const h of history) if (h.actorId) ids.add(String(h.actorId));
+  for (const k of ["approvedBy", "rejectedBy", "cancelledBy"] as const) if (letter[k]) ids.add(String(letter[k]));
+  if (letter.cancelRequest?.by) ids.add(String(letter.cancelRequest.by));
+  const users = await User.find({ _id: { $in: [...ids] } }).select("name").lean();
+  const names = Object.fromEntries(users.map((u) => [String(u._id), u.name]));
+
+  return {
+    letter: enriched,
+    names,
+    history: history.map((h) => ({ action: h.action, actorId: h.actorId ? String(h.actorId) : null, at: (h as unknown as { createdAt: Date }).createdAt, meta: h.meta })),
   };
 }

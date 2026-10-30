@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api, fmtDateTime } from "@/lib/client";
+import { ACTION_LABEL, api, fmtDateTime } from "@/lib/client";
 
 interface Entry {
   _id: string;
@@ -12,24 +12,6 @@ interface Entry {
   createdAt: string;
 }
 
-const ACTION_LABEL: Record<string, string> = {
-  "letter.create": "Mengajukan nomor",
-  "letter.approve": "Menyetujui dan menerbitkan nomor",
-  "letter.reject": "Menolak pengajuan",
-  "letter.cancel_request": "Mengajukan pembatalan",
-  "letter.cancel": "Membatalkan nomor",
-  "letters.import": "Impor data awal",
-  "user.invite": "Mengundang pengguna",
-  "user.accept_invite": "Mengaktifkan akun",
-  "user.password_reset_request": "Meminta reset password",
-  "user.password_reset": "Mengatur ulang password",
-  "tenant.register": "Mendaftarkan instansi",
-  "tenant.seed": "Membuat instansi",
-  "unit.create": "Menambah unit",
-  "tenant.settings_update": "Mengubah kebijakan instansi",
-  "lettertype.create": "Menambah jenis surat",
-  "lettertype.update": "Mengubah jenis surat",
-};
 
 export default function AuditPage() {
   const [items, setItems] = useState<Entry[]>([]);
@@ -38,6 +20,10 @@ export default function AuditPage() {
   const [total, setTotal] = useState(0);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [action, setAction] = useState("");
+  const [actorId, setActorId] = useState("");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
   const limit = 30;
 
   useEffect(() => {
@@ -48,14 +34,19 @@ export default function AuditPage() {
 
   useEffect(() => {
     setLoading(true);
-    api<{ items: Entry[]; total: number }>(`/api/audit?page=${page}&limit=${limit}`)
+    const p = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (action) p.set("action", action);
+    if (actorId) p.set("actorId", actorId);
+    if (from) p.set("from", from);
+    if (to) p.set("to", to);
+    api<{ items: Entry[]; total: number }>(`/api/audit?${p}`)
       .then((d) => {
         setItems(d.items);
         setTotal(d.total);
       })
       .catch((e) => setError((e as Error).message))
       .finally(() => setLoading(false));
-  }, [page]);
+  }, [page, action, actorId, from, to]);
 
   const pages = Math.max(1, Math.ceil(total / limit));
   const detail = (m?: Record<string, unknown>) =>
@@ -75,6 +66,22 @@ export default function AuditPage() {
         </div>
       </div>
       <div className="card">
+        <div className="filters">
+          <select value={action} onChange={(e) => { setPage(1); setAction(e.target.value); }} aria-label="Aksi">
+            <option value="">Semua aksi</option>
+            {Object.entries(ACTION_LABEL).map(([k, v]) => (
+              <option key={k} value={k}>{v}</option>
+            ))}
+          </select>
+          <select value={actorId} onChange={(e) => { setPage(1); setActorId(e.target.value); }} aria-label="Pelaku">
+            <option value="">Semua pelaku</option>
+            {Object.entries(names).map(([id, n]) => (
+              <option key={id} value={id}>{n}</option>
+            ))}
+          </select>
+          <input type="date" value={from} onChange={(e) => { setPage(1); setFrom(e.target.value); }} aria-label="Dari tanggal" style={{ flex: "0 1 160px" }} />
+          <input type="date" value={to} onChange={(e) => { setPage(1); setTo(e.target.value); }} aria-label="Sampai tanggal" style={{ flex: "0 1 160px" }} />
+        </div>
         {error && <p className="flash bad">{error}</p>}
         <div className="tbl-wrap">
           <table className="tbl">

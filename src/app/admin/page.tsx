@@ -26,6 +26,18 @@ export default function AdminPage() {
   }, []);
   useEffect(load, [load]);
 
+  async function setStatus(t: Tenant) {
+    const next = t.status === "active" ? "suspended" : "active";
+    if (next === "suspended" && !window.confirm(`Tangguhkan ${t.name}? Semua penggunanya tidak bisa masuk sampai diaktifkan lagi.`)) return;
+    try {
+      await api(`/api/admin/tenants/${t._id}`, { method: "PATCH", json: { status: next } });
+      setMsg({ ok: true, text: next === "suspended" ? "Instansi ditangguhkan." : "Instansi diaktifkan kembali." });
+      load();
+    } catch (err) {
+      setMsg({ ok: false, text: (err as Error).message });
+    }
+  }
+
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
@@ -70,6 +82,7 @@ export default function AdminPage() {
                   <th>Slug</th>
                   <th>Status</th>
                   <th>Dibuat</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -79,6 +92,11 @@ export default function AdminPage() {
                     <td className="mono">{t.slug}</td>
                     <td>{t.status === "active" ? "Aktif" : "Ditangguhkan"}</td>
                     <td>{fmtDate(t.createdAt)}</td>
+                    <td className="actions">
+                      <button className="btn-sm btn-ghost" onClick={() => setStatus(t)}>
+                        {t.status === "active" ? "Tangguhkan" : "Aktifkan"}
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

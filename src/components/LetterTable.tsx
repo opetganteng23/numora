@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { api, fmtDate, STATUS_LABEL } from "@/lib/client";
 
@@ -188,7 +189,7 @@ export function LetterTable({ mode }: { mode: "registry" | "approvals" }) {
                 <tr key={l._id}>
                   <td className="mono">{l.number?.full ?? <span className="muted">belum ada</span>}</td>
                   <td>
-                    {l.subject}
+                    <Link href={`/letters/${l._id}`}>{l.subject}</Link>
                     <div className="muted small">Kepada: {l.recipient}</div>
                     {l.rejectReason && <div className="small bad-t">Ditolak: {l.rejectReason}</div>}
                     {l.cancelReason && <div className="small bad-t">Dibatalkan: {l.cancelReason}</div>}

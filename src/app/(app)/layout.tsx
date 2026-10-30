@@ -19,6 +19,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (user.role === "tenant_admin") items.push({ href: "/team", label: "Pengaturan" });
   if (user.role === "tenant_admin" || user.role === "auditor") items.push({ href: "/audit", label: "Jejak Audit" });
 
+  items.push({ href: "/profile", label: "Profil" });
+
   return (
     <div className="app">
       <aside className="side">

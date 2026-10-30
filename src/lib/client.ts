@@ -31,7 +31,31 @@ export const ROLE_LABEL: Record<string, string> = {
   auditor: "Auditor",
 };
 
-export const fmtDate = (d?: string | Date | null) =>
+export const ACTION_LABEL: Record<string, string> = {
+  "letter.create": "Mengajukan nomor",
+  "letter.approve": "Menyetujui dan menerbitkan nomor",
+  "letter.reject": "Menolak pengajuan",
+  "letter.cancel_request": "Mengajukan pembatalan",
+  "letter.cancel": "Membatalkan nomor",
+  "letters.import": "Impor data awal",
+  "user.invite": "Mengundang pengguna",
+  "user.invite_resend": "Mengirim ulang undangan",
+  "user.accept_invite": "Mengaktifkan akun",
+  "user.update": "Mengubah pengguna",
+  "user.password_change": "Mengganti password",
+  "user.password_reset_request": "Meminta reset password",
+  "user.password_reset": "Mengatur ulang password",
+  "tenant.register": "Mendaftarkan instansi",
+  "tenant.seed": "Membuat instansi",
+  "tenant.create": "Membuat instansi",
+  "tenant.status": "Mengubah status instansi",
+  "tenant.settings_update": "Mengubah kebijakan instansi",
+  "unit.create": "Menambah unit",
+  "letter_type.create": "Menambah jenis surat",
+  "letter_type.update": "Mengubah jenis surat",
+};
+
+export const fmtDate =(d?: string | Date | null) =>
   d ? new Date(d).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric", timeZone: "Asia/Jakarta" }) : "-";
 
 export const fmtDateTime = (d?: string | Date | null) =>
