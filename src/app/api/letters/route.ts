@@ -11,11 +11,13 @@ const createSchema = z.object({
   subject: z.string().trim().min(1).max(300),
   recipient: z.string().trim().min(1).max(300),
   letterDate: z.coerce.date(),
+  category: z.string().trim().max(60).optional(),
 });
 
 const listSchema = z.object({
   status: z.enum(["pending", "approved", "rejected", "cancelled"]).optional(),
   letterTypeId: oidStr.optional(),
+  category: z.string().trim().max(60).optional(),
   q: z.string().trim().max(100).optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),

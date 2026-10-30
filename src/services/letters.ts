@@ -17,6 +17,7 @@ export interface CreateLetterInput {
   subject: string;
   recipient: string;
   letterDate: Date;
+  category?: string;
 }
 
 /** Pemohon mengajukan nomor. Di tahap ini BELUM ada nomor. */
@@ -47,6 +48,7 @@ export async function createLetter(ctx: TenantCtx, input: CreateLetterInput) {
     subject: input.subject,
     recipient: input.recipient,
     letterDate: input.letterDate,
+    category: input.category || undefined,
     status: "pending",
   });
   await audit({
@@ -204,6 +206,7 @@ export async function cancelLetter(ctx: TenantCtx, letterId: string, reason: str
 export interface ListLettersInput {
   status?: string;
   letterTypeId?: string;
+  category?: string;
   q?: string;
   page: number;
   limit: number;
@@ -227,9 +230,10 @@ export async function listLetters(ctx: TenantCtx, input: ListLettersInput) {
 
   if (input.status) and.push({ status: input.status });
   if (input.letterTypeId) and.push({ letterTypeId: oid(input.letterTypeId) });
+  if (input.category) and.push({ category: input.category });
   if (input.q) {
     const rx = new RegExp(escapeRegex(input.q), "i");
-    and.push({ $or: [{ subject: rx }, { recipient: rx }, { "number.full": rx }] });
+    and.push({ $or: [{ subject: rx }, { recipient: rx }, { category: rx }, { "number.full": rx }] });
   }
 
   const filter = { $and: and };

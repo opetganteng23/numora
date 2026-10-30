@@ -39,6 +39,10 @@ export interface ILetter {
   cancelledAt?: Date;
   cancelReason?: string;
   fileUrl?: string;
+  /** Pengelompokan bebas (Surat Tugas, Surat Keluar, ...). Tidak memengaruhi urutan nomor. */
+  category?: string;
+  /** Jejak data impor dari spreadsheet lama. */
+  legacy?: { sheetNo?: number; creator?: string; note?: string };
 }
 
 const NumberSchema = new Schema<ILetterNumber>(
@@ -77,6 +81,11 @@ const LetterSchema = new Schema<ILetter>(
     cancelledAt: Date,
     cancelReason: { type: String, maxlength: 500 },
     fileUrl: { type: String, maxlength: 500 },
+    category: { type: String, trim: true, maxlength: 60 },
+    legacy: {
+      type: new Schema({ sheetNo: Number, creator: String, note: String }, { _id: false }),
+      required: false,
+    },
   },
   { timestamps: true },
 );
@@ -93,5 +102,6 @@ LetterSchema.index(
 LetterSchema.index({ tenantId: 1, status: 1, createdAt: -1 });
 LetterSchema.index({ tenantId: 1, requesterId: 1, createdAt: -1 });
 LetterSchema.index({ tenantId: 1, letterTypeId: 1, status: 1 });
+LetterSchema.index({ tenantId: 1, category: 1, createdAt: -1 });
 
 export const Letter: Model<ILetter> = (models.Letter as Model<ILetter>) || model<ILetter>("Letter", LetterSchema);
