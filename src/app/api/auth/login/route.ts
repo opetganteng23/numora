@@ -1,0 +1,41 @@
+import { z } from "zod";
+import { AppError } from "@/lib/errors";
+import { handle, json, parseBody } from "@/lib/http";
+import { verifyPassword } from "@/lib/password";
+import { createSession } from "@/lib/session";
+import { Tenant, User } from "@/models";
+
+const schema = z.object({ email: z.string().email().max(200), password: z.string().min(1).max(200) });
+
+const MAX_FAILED = 5;
+const LOCK_MS = 15 * 60 * 1000;
+
+export const POST = handle(async (req) => {
+  const { email, password } = await parseBody(req, schema);
+  const user = await User.findOne({ email: email.toLowerCase().trim() }).select("+passwordHash");
+
+  if (user?.lockedUntil && user.lockedUntil > new Date()) {
+    throw new AppError(429, "Akun dikunci sementara karena terlalu banyak percobaan. Coba lagi nanti.");
+  }
+
+  const ok = await verifyPassword(password, user?.passwordHash);
+  if (!user || !ok) {
+    if (user) {
+      const upd = await User.findOneAndUpdate({ _id: user._id }, { $inc: { failedLogins: 1 } }, { new: true });
+      if (upd && upd.failedLogins >= MAX_FAILED) {
+        await User.updateOne({ _id: user._id }, { $set: { lockedUntil: new Date(Date.now() + LOCK_MS), failedLogins: 0 } });
+      }
+    }
+    throw new AppError(401, "Email atau password salah");
+  }
+
+  if (user.status !== "active") throw new AppError(403, "Akun dinonaktifkan");
+  if (user.tenantId) {
+    const tenant = await Tenant.findById(user.tenantId).select("status").lean();
+    if (!tenant || tenant.status !== "active") throw new AppError(403, "Instansi dinonaktifkan");
+  }
+
+  await User.updateOne({ _id: user._id }, { $set: { failedLogins: 0, lockedUntil: null, lastLoginAt: new Date() } });
+  await createSession(String(user._id));
+  return json({ user: { id: String(user._id), name: user.name, email: user.email, role: user.role } });
+});
