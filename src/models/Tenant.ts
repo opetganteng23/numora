@@ -5,6 +5,8 @@ export interface ITenant {
   slug: string;
   status: "active" | "suspended";
   timeZone: string;
+  /** false (default): pemohon tidak boleh menyetujui pengajuannya sendiri. */
+  allowSelfApproval: boolean;
 }
 
 const TenantSchema = new Schema<ITenant>(
@@ -13,6 +15,7 @@ const TenantSchema = new Schema<ITenant>(
     slug: { type: String, required: true, unique: true, lowercase: true, trim: true, match: /^[a-z0-9-]{2,40}$/ },
     status: { type: String, enum: ["active", "suspended"], default: "active" },
     timeZone: { type: String, default: "Asia/Jakarta" },
+    allowSelfApproval: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

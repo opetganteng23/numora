@@ -2,7 +2,7 @@ import mongoose, { Types } from "mongoose";
 import { AppError, withRetry } from "@/lib/errors";
 import { issueNumber } from "@/lib/issue-number";
 import { canApprove, canCancel, canCreateLetter, canRequestCancel, type TenantCtx } from "@/lib/rbac";
-import { Letter, LetterType, Tenant, Unit } from "@/models";
+import { Letter, LetterType, Tenant, Unit, User } from "@/models";
 import { audit } from "./audit";
 import { notifyApprovers, notifyDecision } from "./notify";
 
@@ -85,6 +85,10 @@ export async function approveLetter(ctx: TenantCtx, letterId: string) {
       if (!canApprove(ctx, type.approverIds)) {
         throw new AppError(403, "Anda bukan approver untuk jenis surat ini");
       }
+      const tenantCfg = await Tenant.findById(tenantId).select("allowSelfApproval").session(session).lean();
+      if (String(letter.requesterId) === ctx.userId && !tenantCfg?.allowSelfApproval) {
+        throw new AppError(403, "Anda tidak boleh menyetujui pengajuan Anda sendiri");
+      }
 
       const unit = letter.unitId ? await Unit.findOne({ _id: letter.unitId, tenantId }).session(session) : null;
       const tenant = await Tenant.findById(tenantId).select("timeZone").session(session);
@@ -131,6 +135,10 @@ export async function rejectLetter(ctx: TenantCtx, letterId: string, reason: str
   const type = await LetterType.findOne({ _id: letter.letterTypeId, tenantId }).select("approverIds").lean();
   if (!type || !canApprove(ctx, type.approverIds)) {
     throw new AppError(403, "Anda bukan approver untuk jenis surat ini");
+  }
+  const cfg = await Tenant.findById(tenantId).select("allowSelfApproval").lean();
+  if (String(letter.requesterId) === ctx.userId && !cfg?.allowSelfApproval) {
+    throw new AppError(403, "Anda tidak boleh menolak pengajuan Anda sendiri; batalkan atau minta approver lain");
   }
 
   // Update bersyarat: hanya berhasil bila masih pending (aman dari balapan dengan approve)
@@ -239,11 +247,92 @@ export async function listLetters(ctx: TenantCtx, input: ListLettersInput) {
   const filter = { $and: and };
   const [items, total] = await Promise.all([
     Letter.find(filter)
-      .sort({ createdAt: -1 })
+      .sort({ letterDate: -1, "number.seq": -1, createdAt: -1 })
       .skip((input.page - 1) * input.limit)
       .limit(input.limit)
       .lean(),
     Letter.countDocuments(filter),
   ]);
-  return { items, total, page: input.page, limit: input.limit };
+  const enriched = await enrich(ctx, items);
+  return { items: enriched, total, page: input.page, limit: input.limit };
+}
+
+/** Tambahkan nama pemohon, nama jenis surat, dan hak aksi pengguna ini pada tiap surat. */
+async function enrich<T extends Record<string, any>>(ctx: TenantCtx, items: T[]) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tenantId = oid(ctx.tenantId);
+  const [users, types, tenant] = await Promise.all([
+    User.find({ _id: { $in: [...new Set(items.map((i) => String(i.requesterId)))] } })
+      .select("name")
+      .lean(),
+    LetterType.find({ tenantId, _id: { $in: [...new Set(items.map((i) => String(i.letterTypeId)))] } })
+      .select("name approverIds")
+      .lean(),
+    Tenant.findById(tenantId).select("allowSelfApproval").lean(),
+  ]);
+  const uName = new Map(users.map((u) => [String(u._id), u.name]));
+  const tMap = new Map(types.map((t) => [String(t._id), t]));
+  return items.map((l) => {
+    const type = tMap.get(String(l.letterTypeId));
+    const own = String(l.requesterId) === ctx.userId;
+    return {
+      ...l,
+      requesterName: uName.get(String(l.requesterId)) ?? "-",
+      typeName: type?.name ?? "-",
+      can: {
+        approve: l.status === "pending" && !!type && canApprove(ctx, type.approverIds) && (!own || !!tenant?.allowSelfApproval),
+        requestCancel: l.status === "approved" && !l.cancelRequest && canRequestCancel(ctx, l as unknown as { requesterId: Types.ObjectId; unitId: Types.ObjectId | null }),
+        cancel: l.status === "approved" && canCancel(ctx, l as unknown as { unitId: Types.ObjectId | null }),
+      },
+    };
+  });
+}
+
+export async function listCategories(ctx: TenantCtx): Promise<string[]> {
+  const cats = (await Letter.distinct("category", { tenantId: oid(ctx.tenantId) })) as string[];
+  return cats.filter(Boolean).sort((a, b) => a.localeCompare(b));
+}
+
+/** Ringkasan untuk dashboard, sesuai cakupan peran. */
+export async function getDashboard(ctx: TenantCtx) {
+  const tenantId = oid(ctx.tenantId);
+  const scope: Record<string, unknown> = { tenantId };
+  if (ctx.role === "staff" || ctx.role === "unit_admin") {
+    const approvable = await LetterType.find({ tenantId, approverIds: oid(ctx.userId) }).distinct("_id");
+    const or: Record<string, unknown>[] = [{ requesterId: oid(ctx.userId) }, { letterTypeId: { $in: approvable } }];
+    if (ctx.role === "unit_admin" && ctx.unitId) or.push({ unitId: oid(ctx.unitId) });
+    scope.$or = or;
+  }
+  const year = new Date().getFullYear();
+  const [byStatus, byCategory, byMonth, recent, myPending] = await Promise.all([
+    Letter.aggregate([{ $match: scope }, { $group: { _id: "$status", n: { $sum: 1 } } }]),
+    Letter.aggregate([
+      { $match: { ...scope, status: "approved" } },
+      { $group: { _id: { $ifNull: ["$category", "Belum dikategorikan"] }, n: { $sum: 1 } } },
+      { $sort: { n: -1 } },
+      { $limit: 8 },
+    ]),
+    Letter.aggregate([
+      { $match: { ...scope, status: "approved", letterDate: { $gte: new Date(Date.UTC(year, 0, 1)) } } },
+      { $group: { _id: { $month: { date: "$letterDate", timezone: "Asia/Jakarta" } }, n: { $sum: 1 } } },
+    ]),
+    Letter.find(scope).sort({ letterDate: -1, "number.seq": -1, createdAt: -1 }).limit(6).lean(),
+    Letter.countDocuments({ ...scope, status: "pending" }),
+  ]);
+  const status: Record<string, number> = { pending: 0, approved: 0, rejected: 0, cancelled: 0 };
+  byStatus.forEach((r: { _id: string; n: number }) => (status[r._id] = r.n));
+  const months = Array.from({ length: 12 }, (_, i) => byMonth.find((m: { _id: number; n: number }) => m._id === i + 1)?.n ?? 0);
+  const lastNumber = await Letter.findOne({ tenantId, "number.seq": { $exists: true } })
+    .sort({ "number.issuedAt": -1, "number.seq": -1 })
+    .select("number.full")
+    .lean();
+  return {
+    status,
+    pending: myPending,
+    categories: byCategory.map((c: { _id: string; n: number }) => ({ name: c._id, count: c.n })),
+    months,
+    year,
+    recent: await enrich(ctx, recent),
+    lastNumber: lastNumber?.number?.full ?? null,
+  };
 }
