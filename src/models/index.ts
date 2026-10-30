@@ -6,3 +6,4 @@ export * from "./Counter";
 export * from "./Letter";
 export * from "./AuditLog";
 export * from "./Invitation";
+export * from "./PasswordReset";

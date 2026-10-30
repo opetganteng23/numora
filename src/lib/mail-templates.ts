@@ -45,3 +45,12 @@ export function decisionMail(p: {
     html: `<p>Pengajuan nomor <b>${esc(p.typeName)}</b> ditolak.</p><p>Perihal: ${esc(p.subject)}</p><p>Alasan: ${esc(p.reason ?? "-")}</p>`,
   };
 }
+
+export function resetMail(p: { name: string; link: string; expiresAt: Date }): Template {
+  const exp = p.expiresAt.toLocaleString("id-ID", { timeZone: "Asia/Jakarta" });
+  return {
+    subject: "Atur ulang password NUMORA",
+    text: `Halo ${p.name},\n\nKami menerima permintaan atur ulang password. Buka tautan berikut (berlaku sampai ${exp} WIB):\n${p.link}\n\nAbaikan email ini bila Anda tidak memintanya.`,
+    html: `<p>Halo ${esc(p.name)},</p><p>Kami menerima permintaan atur ulang password NUMORA.</p><p><a href="${esc(p.link)}">Atur ulang password</a><br/>Berlaku sampai ${esc(exp)} WIB.</p><p>Abaikan email ini bila Anda tidak memintanya.</p>`,
+  };
+}

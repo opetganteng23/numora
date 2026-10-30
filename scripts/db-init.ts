@@ -7,12 +7,12 @@
 import mongoose from "mongoose";
 import { connectDB } from "../src/lib/db";
 import { hashPassword } from "../src/lib/password";
-import { AuditLog, Counter, Invitation, Letter, LetterType, Tenant, Unit, User } from "../src/models";
+import { AuditLog, Counter, Invitation, Letter, LetterType, PasswordReset, Tenant, Unit, User } from "../src/models";
 
 async function main() {
   await connectDB();
 
-  for (const model of [Tenant, User, Unit, LetterType, Counter, Letter, AuditLog, Invitation]) {
+  for (const model of [Tenant, User, Unit, LetterType, Counter, Letter, AuditLog, Invitation, PasswordReset]) {
     await model.createCollection().catch(() => undefined); // sudah ada = aman
     await model.syncIndexes();
     console.log(`index OK: ${model.modelName}`);
