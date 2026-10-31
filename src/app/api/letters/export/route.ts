@@ -3,13 +3,14 @@ import { z } from "zod";
 import { requireTenantUser } from "@/lib/auth";
 import { handle } from "@/lib/http";
 import { fmtDate } from "@/lib/client";
+import { tablePdf } from "@/lib/pdf-table";
 import { listLetters } from "@/services/letters";
 
 const q = z.object({
   status: z.enum(["pending", "approved", "rejected", "cancelled"]).optional(),
   category: z.string().trim().max(60).optional(),
   q: z.string().trim().max(100).optional(),
-  format: z.enum(["csv", "xlsx"]).default("csv"),
+  format: z.enum(["csv", "xlsx", "pdf"]).default("csv"),
 });
 
 const HEAD = ["Nomor", "Jenis", "Kategori", "Perihal", "Tujuan", "Pemohon", "Tanggal", "Status"];
@@ -49,6 +50,19 @@ export const GET = handle(async (req) => {
         "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "Content-Disposition": `attachment; filename="registri-surat.xlsx"`,
       },
+    });
+  }
+
+  if (format === "pdf") {
+    const filters = [f.status && `status ${f.status}`, f.category && `kategori ${f.category}`, f.q && `cari "${f.q}"`].filter(Boolean).join(", ");
+    const pdf = await tablePdf(
+      "Registri Nomor Surat",
+      `${rows.length} surat${filters ? ` | filter: ${filters}` : ""}`,
+      [{ title: "Nomor", width: 22 }, { title: "Jenis", width: 14 }, { title: "Kategori", width: 14 }, { title: "Perihal", width: 30 }, { title: "Tujuan", width: 20 }, { title: "Tanggal", width: 9 }, { title: "Status", width: 8 }],
+      rows.map((r) => [r[0], r[1], r[2], r[3], r[4], r[6], r[7]]),
+    );
+    return new Response(new Uint8Array(pdf), {
+      headers: { ...headers, "Content-Type": "application/pdf", "Content-Disposition": `attachment; filename="registri-surat.pdf"` },
     });
   }
 

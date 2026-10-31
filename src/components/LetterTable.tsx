@@ -153,9 +153,9 @@ export function LetterTable({ mode }: { mode: "registry" | "approvals" }) {
         )}
         {mode === "registry" && (
           <>
-            {(["xlsx", "csv"] as const).map((fmt) => (
+            {(["xlsx", "pdf", "csv"] as const).map((fmt) => (
               <a key={fmt} className="btn-sm btn-ghost" href={`/api/letters/export?${new URLSearchParams({ format: fmt, ...(q ? { q } : {}), ...(status ? { status } : {}), ...(category ? { category } : {}) })}`}>
-                Unduh {fmt === "xlsx" ? "Excel" : "CSV"}
+                Unduh {fmt === "xlsx" ? "Excel" : fmt === "pdf" ? "PDF" : "CSV"}
               </a>
             ))}
           </>
