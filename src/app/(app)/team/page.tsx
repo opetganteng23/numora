@@ -1,5 +1,6 @@
 "use client";
 
+import { PatternDesigner } from "@/components/PatternDesigner";
 import { useCallback, useEffect, useState } from "react";
 import { api, fmtDateTime, ROLE_LABEL } from "@/lib/client";
 
@@ -352,8 +353,8 @@ export default function TeamPage() {
             </div>
             <div className="span2">
               <label htmlFor="tpat">Format nomor</label>
-              <input id="tpat" name="formatPattern" defaultValue="{urut}/{jenis}/{bulan_romawi}/{tahun}" required />
-              <p className="muted small">Token: {"{urut} {jenis} {unit} {bulan} {bulan_romawi} {tahun}"}. Reset tahunan wajib memuat {"{tahun}"}.</p>
+              <PatternDesigner id="tpat" defaultValue="{urut}/{jenis}/{bulan_romawi}/{tahun}" />
+              <p className="muted small">Reset tahunan wajib memuat {"{tahun}"}. Teks biasa seperti SDM4 boleh ditulis langsung.</p>
             </div>
             <div>
               <label htmlFor="tpad">Digit nomor urut</label>
@@ -472,7 +473,7 @@ export default function TeamPage() {
             <label htmlFor="etn">Nama</label>
             <input id="etn" name="name" defaultValue={editType.name} required minLength={2} />
             <label htmlFor="etp">Format nomor</label>
-            <input id="etp" name="formatPattern" defaultValue={editType.formatPattern} required />
+            <PatternDesigner id="etp" defaultValue={editType.formatPattern} code={editType.code} padding={editType.padding} />
             <p className="muted small" style={{ margin: "4px 0 0" }}>
               Mengubah format hanya berlaku untuk nomor berikutnya. Nomor yang sudah terbit tidak berubah. Aturan reset dan per unit terkunci bila sudah ada surat.
             </p>

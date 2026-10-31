@@ -12,6 +12,7 @@ Dokumen ini menjelaskan data apa yang disimpan NUMORA, bagaimana dilindungi, dan
 | Dokumen final | Berkas (PDF, DOCX, XLSX, PNG, JPG), nama berkas, ukuran, hash SHA-256, pengunggah | Disimpan di folder privat server, di luar folder web |
 | Jejak audit | Pelaku, aksi, objek, waktu, metadata singkat | Tidak memuat password atau isi dokumen |
 | Undangan dan reset password | Hash token, email, masa berlaku | Token hanya berlaku sekali dan kedaluwarsa |
+| Notifikasi | Ringkasan pengajuan dan keputusan, tertaut ke surat | Hanya terlihat oleh penerimanya |
 | Log aplikasi | Pesan galat server | Dikelola PM2 di server |
 
 ## 2. Siapa yang dapat mengakses
@@ -37,7 +38,9 @@ Dokumen ini menjelaskan data apa yang disimpan NUMORA, bagaimana dilindungi, dan
 | Surat, nomor, dan dokumen final | Selama instansi aktif. Tidak dihapus otomatis |
 | Versi dokumen lama | Disimpan seluruhnya, tidak pernah ditimpa |
 | Jejak audit | Disimpan tanpa batas waktu |
-| Undangan dan token reset | Kedaluwarsa dalam waktu singkat, tidak dihapus otomatis |
+| Undangan | Dihapus otomatis 30 hari setelah kedaluwarsa |
+| Token reset password | Dihapus otomatis 1 hari setelah kedaluwarsa |
+| Notifikasi dalam aplikasi | Dihapus otomatis setelah 90 hari |
 | Cadangan database dan berkas | 14 hari, lalu dihapus oleh skrip cadangan (`KEEP_DAYS`) |
 
 Nomor surat dan jejak audit sengaja tidak dapat dihapus karena menjadi bukti penomoran yang sah.
@@ -51,7 +54,6 @@ Nomor surat dan jejak audit sengaja tidak dapat dihapus karena menjadi bukti pen
 ## 6. Belum diterapkan
 
 - Penghapusan atau anonimisasi data pribadi otomatis sesuai masa retensi.
-- Pembersihan otomatis undangan dan token reset yang sudah kedaluwarsa.
 - Enkripsi berkas dokumen di disk (saat ini mengandalkan izin folder 700 milik pengguna server).
 - Cadangan di luar server. Cadangan sekarang tersimpan di server yang sama.
 - Pemantauan ketersediaan oleh layanan eksternal.

@@ -1,4 +1,7 @@
+import { Types } from "mongoose";
 import { redirect } from "next/navigation";
+import { connectDB } from "@/lib/db";
+import { Notification } from "@/models";
 import { Brand } from "@/components/Brand";
 import { LogoutButton } from "@/components/LogoutButton";
 import { NavLinks, type NavItem } from "@/components/NavLinks";
@@ -19,6 +22,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (user.role === "tenant_admin") items.push({ href: "/team", label: "Pengaturan" });
   if (user.role === "tenant_admin" || user.role === "auditor") items.push({ href: "/audit", label: "Jejak Audit" });
 
+  await connectDB();
+  const unread = await Notification.countDocuments({ userId: new Types.ObjectId(user.userId), readAt: null });
+  items.push({ href: "/notifications", label: unread > 0 ? `Notifikasi (${unread})` : "Notifikasi" });
   items.push({ href: "/profile", label: "Profil" });
 
   return (

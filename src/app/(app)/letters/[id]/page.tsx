@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import QRCode from "qrcode";
 import { verifyPath } from "@/lib/verify-code";
+import { CategoryEdit } from "@/components/CategoryEdit";
 import { DocumentsCard } from "@/components/DocumentsCard";
 import { requireTenantUser } from "@/lib/auth";
 import { ACTION_LABEL, fmtDate, fmtDateTime, STATUS_LABEL } from "@/lib/client";
@@ -49,7 +50,7 @@ export default async function LetterDetail({ params }: { params: Promise<{ id: s
         <div className="card">
           <h3>Data surat</h3>
           <Row label="Jenis surat">{l.typeName}</Row>
-          <Row label="Kategori">{l.category ?? "-"}</Row>
+          <Row label="Kategori">{ctx.role === "tenant_admin" ? <CategoryEdit letterId={String(l._id)} current={l.category ?? ""} /> : l.category ?? "-"}</Row>
           <Row label="Perihal">{l.subject}</Row>
           <Row label="Ditujukan kepada">{l.recipient}</Row>
           <Row label="Tanggal surat">{fmtDate(l.letterDate)}</Row>

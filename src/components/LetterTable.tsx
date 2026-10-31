@@ -152,9 +152,13 @@ export function LetterTable({ mode }: { mode: "registry" | "approvals" }) {
           </>
         )}
         {mode === "registry" && (
-          <a className="btn-sm btn-ghost" href={`/api/letters/export?${new URLSearchParams({ ...(q ? { q } : {}), ...(status ? { status } : {}), ...(category ? { category } : {}) })}`}>
-            Unduh CSV
-          </a>
+          <>
+            {(["xlsx", "csv"] as const).map((fmt) => (
+              <a key={fmt} className="btn-sm btn-ghost" href={`/api/letters/export?${new URLSearchParams({ format: fmt, ...(q ? { q } : {}), ...(status ? { status } : {}), ...(category ? { category } : {}) })}`}>
+                Unduh {fmt === "xlsx" ? "Excel" : "CSV"}
+              </a>
+            ))}
+          </>
         )}
       </div>
 

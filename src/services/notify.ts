@@ -1,6 +1,6 @@
 import { decisionMail, pendingMail } from "@/lib/mail-templates";
 import { sendMail } from "@/lib/mailer";
-import { Letter, LetterType, User } from "@/models";
+import { Letter, LetterType, Notification, User } from "@/models";
 
 /** Semua fungsi di sini tidak pernah melempar error; dipanggil SETELAH transaksi commit. */
 
@@ -25,6 +25,16 @@ export async function notifyApprovers(letterId: string): Promise<void> {
     const to = [...new Set(recipients.map((r) => r.email))];
     if (!to.length) return;
 
+    await Notification.insertMany(
+      recipients.map((r) => ({
+        tenantId: letter.tenantId,
+        userId: r._id,
+        type: "pending",
+        letterId: letter._id,
+        text: `${requester?.name ?? "Seseorang"} mengajukan nomor ${type.name}: ${letter.subject}`,
+      })),
+    );
+
     await sendMail({
       to,
       ...pendingMail({ typeName: type.name, subject: letter.subject, requester: requester?.name ?? "Seseorang" }),
@@ -44,6 +54,16 @@ export async function notifyDecision(letterId: string): Promise<void> {
     ]);
     if (!type || !requester) return;
 
+    await Notification.create({
+      tenantId: letter.tenantId,
+      userId: letter.requesterId,
+      type: letter.status,
+      letterId: letter._id,
+      text:
+        letter.status === "approved"
+          ? `Disetujui, nomor terbit ${letter.number?.full}: ${letter.subject}`
+          : `Ditolak${letter.rejectReason ? ` (${letter.rejectReason})` : ""}: ${letter.subject}`,
+    });
     await sendMail({
       to: requester.email,
       ...decisionMail({
