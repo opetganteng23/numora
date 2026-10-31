@@ -3,7 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { AppError } from "@/lib/errors";
 import { handle, json, parseBody } from "@/lib/http";
 import { rateLimit } from "@/lib/rate-limit";
-import { decryptSecret, verifyTotp } from "@/lib/totp";
+import { decryptSecret, hashRecovery, newRecoveryCodes, verifyTotp } from "@/lib/totp";
 import { User } from "@/models";
 import { audit } from "@/services/audit";
 
@@ -16,7 +16,8 @@ export const POST = handle(async (req) => {
   if (user.mfaEnabled) throw new AppError(409, "MFA sudah aktif");
   const step = verifyTotp(decryptSecret(user.mfaSecret), code);
   if (step === null) throw new AppError(422, "Kode salah. Pastikan jam perangkat Anda tepat.");
-  await User.updateOne({ _id: user._id }, { $set: { mfaEnabled: true, mfaLastStep: step } });
+  const recoveryCodes = newRecoveryCodes();
+  await User.updateOne({ _id: user._id }, { $set: { mfaEnabled: true, mfaLastStep: step, mfaRecovery: recoveryCodes.map(hashRecovery) } });
   await audit({ tenantId: user.tenantId, actorId: user._id, action: "user.mfa_enable", entityType: "User", entityId: user._id });
-  return json({ ok: true });
+  return json({ ok: true, recoveryCodes });
 });

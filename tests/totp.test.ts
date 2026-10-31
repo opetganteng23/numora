@@ -21,3 +21,17 @@ describe("totp", () => {
     expect(encryptSecret(s)).not.toBe(a);
   });
 });
+
+import { hashRecovery, isRecoveryCode, newRecoveryCodes } from "@/lib/totp";
+
+describe("kode pemulihan", () => {
+  it("formatnya dikenali dan hash tidak peka huruf besar", () => {
+    const [c] = newRecoveryCodes(1);
+    expect(isRecoveryCode(c)).toBe(true);
+    expect(isRecoveryCode("123456")).toBe(false);
+    expect(hashRecovery(c)).toBe(hashRecovery(c.toUpperCase()));
+  });
+  it("kode unik", () => {
+    expect(new Set(newRecoveryCodes(8)).size).toBe(8);
+  });
+});

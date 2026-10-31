@@ -38,8 +38,8 @@ export default function LoginForm({ registrationOpen }: { registrationOpen: bool
         <input id="password" name="password" type="password" autoComplete="current-password" required />
         {needCode && (
           <>
-            <label htmlFor="code">Kode autentikator (6 angka)</label>
-            <input id="code" name="code" inputMode="numeric" pattern="\d{6}" maxLength={6} autoComplete="one-time-code" autoFocus required />
+            <label htmlFor="code">Kode autentikator (6 angka) atau kode pemulihan</label>
+            <input id="code" name="code" maxLength={11} autoComplete="one-time-code" autoFocus required />
           </>
         )}
         <p style={{ textAlign: "right", margin: "8px 0 0", fontSize: 14 }}>

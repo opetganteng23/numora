@@ -9,6 +9,7 @@ export function MfaCard() {
   const [setup, setSetup] = useState<{ secret: string; qr: string } | null>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [codes, setCodes] = useState<string[] | null>(null);
 
   useEffect(() => {
     api<{ enabled: boolean }>("/api/auth/mfa").then((d) => setEnabled(d.enabled)).catch(() => setEnabled(false));
@@ -35,9 +36,10 @@ export function MfaCard() {
     e.preventDefault();
     const code = new FormData(e.currentTarget).get("code");
     return run(async () => {
-      await api("/api/auth/mfa/enable", { json: { code } });
+      const d = await api<{ recoveryCodes: string[] }>("/api/auth/mfa/enable", { json: { code } });
       setEnabled(true);
       setSetup(null);
+      setCodes(d.recoveryCodes);
       setMsg({ ok: true, text: "Autentikasi dua langkah aktif. Mulai sekarang login meminta kode." });
     });
   };
@@ -77,6 +79,18 @@ export function MfaCard() {
             Konfirmasi
           </button>
         </form>
+      )}
+      {codes && (
+        <div className="card" style={{ marginBottom: 14 }}>
+          <p className="small">
+            <b>Simpan kode pemulihan ini sekarang.</b> Tiap kode hanya berlaku sekali dan tidak akan ditampilkan lagi. Pakai saat ponsel Anda hilang.
+          </p>
+          <p className="mono" style={{ lineHeight: 1.9 }}>
+            {codes.map((c) => (
+              <span key={c} style={{ display: "block" }}>{c}</span>
+            ))}
+          </p>
+        </div>
       )}
       {enabled && (
         <form onSubmit={disable}>

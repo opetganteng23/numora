@@ -20,6 +20,8 @@ export interface IUser {
   mfaEnabled?: boolean;
   /** Langkah TOTP terakhir yang dipakai, agar satu kode tidak bisa dipakai dua kali. */
   mfaLastStep?: number;
+  /** Hash kode pemulihan yang belum terpakai. */
+  mfaRecovery?: string[];
 }
 
 const UserSchema = new Schema<IUser>(
@@ -38,6 +40,7 @@ const UserSchema = new Schema<IUser>(
     mfaSecret: { type: String, select: false },
     mfaEnabled: { type: Boolean, default: false },
     mfaLastStep: { type: Number, select: false },
+    mfaRecovery: { type: [String], select: false, default: undefined },
   },
   { timestamps: true },
 );

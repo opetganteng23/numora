@@ -57,6 +57,16 @@ export function verifyTotp(secret: string, code: string, now = Date.now()): numb
 export const otpauthUrl = (secret: string, email: string) =>
   `otpauth://totp/NUMORA:${encodeURIComponent(email)}?secret=${secret}&issuer=NUMORA&digits=6&period=30`;
 
+/** Kode pemulihan: 8 kode sekali pakai berformat xxxxx-xxxxx, disimpan hanya sebagai hash. */
+export const isRecoveryCode = (c: string) => /^[a-f0-9]{5}-[a-f0-9]{5}$/i.test(c.trim());
+export const hashRecovery = (c: string) => createHash("sha256").update(`recovery:${c.trim().toLowerCase()}`).digest("hex");
+export function newRecoveryCodes(n = 8) {
+  return Array.from({ length: n }, () => {
+    const h = randomBytes(5).toString("hex");
+    return `${h.slice(0, 5)}-${h.slice(5)}`;
+  });
+}
+
 function key() {
   const s = process.env.SESSION_SECRET;
   if (!s) throw new Error("SESSION_SECRET belum diatur");

@@ -16,7 +16,7 @@ export const POST = handle(async (req) => {
   if (!user || !user.mfaEnabled || !user.mfaSecret) throw new AppError(409, "MFA belum aktif");
   if (!(await verifyPassword(password, user.passwordHash))) throw new AppError(403, "Password salah");
   if (verifyTotp(decryptSecret(user.mfaSecret), code) === null) throw new AppError(403, "Kode autentikator salah");
-  await User.updateOne({ _id: user._id }, { $set: { mfaEnabled: false }, $unset: { mfaSecret: "", mfaLastStep: "" } });
+  await User.updateOne({ _id: user._id }, { $set: { mfaEnabled: false }, $unset: { mfaSecret: "", mfaLastStep: "", mfaRecovery: "" } });
   await audit({ tenantId: user.tenantId, actorId: user._id, action: "user.mfa_disable", entityType: "User", entityId: user._id });
   return json({ ok: true });
 });

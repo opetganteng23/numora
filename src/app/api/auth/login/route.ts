@@ -4,10 +4,11 @@ import { rateLimit } from "@/lib/rate-limit";
 import { handle, json, parseBody } from "@/lib/http";
 import { verifyPassword } from "@/lib/password";
 import { createSession } from "@/lib/session";
-import { decryptSecret, verifyTotp } from "@/lib/totp";
+import { decryptSecret, hashRecovery, isRecoveryCode, verifyTotp } from "@/lib/totp";
+import { audit } from "@/services/audit";
 import { Tenant, User } from "@/models";
 
-const schema = z.object({ email: z.string().email().max(200), password: z.string().min(1).max(200), code: z.string().max(10).optional() });
+const schema = z.object({ email: z.string().email().max(200), password: z.string().min(1).max(200), code: z.string().max(20).optional() });
 
 const MAX_FAILED = 5;
 const LOCK_MS = 15 * 60 * 1000;
@@ -40,15 +41,25 @@ export const POST = handle(async (req) => {
 
   if (user.mfaEnabled && user.mfaSecret) {
     if (!code) throw new AppError(401, "Masukkan kode dari aplikasi autentikator", "MFA_REQUIRED");
-    const step = verifyTotp(decryptSecret(user.mfaSecret), code.trim());
-    if (step === null || step <= (user.mfaLastStep ?? 0)) {
+    let passed = false;
+    let step: number | null = null;
+    if (isRecoveryCode(code)) {
+      // Kode pemulihan sekali pakai: dihapus atomik saat dipakai
+      const r = await User.updateOne({ _id: user._id, mfaRecovery: hashRecovery(code) }, { $pull: { mfaRecovery: hashRecovery(code) } });
+      passed = r.modifiedCount === 1;
+      if (passed) await audit({ tenantId: user.tenantId, actorId: user._id, action: "user.mfa_recovery_used", entityType: "User", entityId: user._id });
+    } else {
+      step = verifyTotp(decryptSecret(user.mfaSecret), code.trim());
+      passed = step !== null && step > (user.mfaLastStep ?? 0);
+    }
+    if (!passed) {
       const upd = await User.findOneAndUpdate({ _id: user._id }, { $inc: { failedLogins: 1 } }, { new: true });
       if (upd && upd.failedLogins >= MAX_FAILED) {
         await User.updateOne({ _id: user._id }, { $set: { lockedUntil: new Date(Date.now() + LOCK_MS), failedLogins: 0 } });
       }
       throw new AppError(401, "Kode autentikator salah", "MFA_REQUIRED");
     }
-    await User.updateOne({ _id: user._id }, { $set: { mfaLastStep: step } });
+    if (step !== null) await User.updateOne({ _id: user._id }, { $set: { mfaLastStep: step } });
   }
 
   await User.updateOne({ _id: user._id }, { $set: { failedLogins: 0, lockedUntil: null, lastLoginAt: new Date() } });
