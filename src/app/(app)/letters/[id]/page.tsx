@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import QRCode from "qrcode";
+import { verifyPath } from "@/lib/verify-code";
 import { DocumentsCard } from "@/components/DocumentsCard";
 import { requireTenantUser } from "@/lib/auth";
 import { ACTION_LABEL, fmtDate, fmtDateTime, STATUS_LABEL } from "@/lib/client";
@@ -26,6 +28,8 @@ export default async function LetterDetail({ params }: { params: Promise<{ id: s
     notFound();
   }
   const { letter: l, names, history } = data;
+  const verifyUrl = l.status === "approved" ? `${process.env.APP_URL ?? ""}${verifyPath(String(l._id))}` : null;
+  const qr = verifyUrl ? await QRCode.toString(verifyUrl, { type: "svg", margin: 1, width: 160 }) : null;
   const nm = (x?: unknown) => (x ? names[String(x)] ?? "-" : "-");
 
   return (
@@ -98,6 +102,17 @@ export default async function LetterDetail({ params }: { params: Promise<{ id: s
           )}
         </div>
       </div>
+
+      {qr && verifyUrl && (
+        <div className="card" style={{ marginTop: 18, display: "flex", gap: 20, alignItems: "center", flexWrap: "wrap" }}>
+          <div dangerouslySetInnerHTML={{ __html: qr }} style={{ width: 160, height: 160 }} />
+          <div>
+            <h3>Verifikasi publik</h3>
+            <p className="muted small">Pindai atau bagikan tautan ini agar pihak luar dapat memeriksa keaslian nomor dan dokumen.</p>
+            <a className="small" href={verifyUrl}>{verifyUrl}</a>
+          </div>
+        </div>
+      )}
 
       {l.status === "approved" && (
         <DocumentsCard

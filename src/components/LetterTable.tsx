@@ -151,6 +151,11 @@ export function LetterTable({ mode }: { mode: "registry" | "approvals" }) {
             </select>
           </>
         )}
+        {mode === "registry" && (
+          <a className="btn-sm btn-ghost" href={`/api/letters/export?${new URLSearchParams({ ...(q ? { q } : {}), ...(status ? { status } : {}), ...(category ? { category } : {}) })}`}>
+            Unduh CSV
+          </a>
+        )}
       </div>
 
       {flash && <p className="flash ok">{flash}</p>}

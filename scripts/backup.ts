@@ -7,7 +7,8 @@
  * Format: satu baris JSON per dokumen: {"c":"<koleksi>","d":<EJSON>}.
  * Berkas lama yang melewati KEEP_DAYS dihapus. Pulihkan dengan scripts/restore.ts.
  */
-import { createWriteStream, mkdirSync, readdirSync, statSync, unlinkSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { chmodSync, createWriteStream, existsSync, mkdirSync, readdirSync, statSync, unlinkSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { createGzip } from "node:zlib";
@@ -43,6 +44,15 @@ async function main() {
   }
   gz.end();
   await once(out, "finish");
+
+  // Arsip berkas dokumen (jika ada)
+  const storage = (process.env.STORAGE_DIR ?? "").replace(/^~/, homedir());
+  if (storage && existsSync(storage)) {
+    const tarFile = join(dir, `numora-files-${stamp}.tar.gz`);
+    execFileSync("tar", ["czf", tarFile, "-C", storage, "."]);
+    chmodSync(tarFile, 0o600);
+    console.log(`berkas: ${tarFile} (${(statSync(tarFile).size / 1024).toFixed(1)} KB)`);
+  }
 
   // Hapus cadangan yang sudah melewati masa simpan
   const limit = Date.now() - keepDays * 86_400_000;
