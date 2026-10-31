@@ -15,6 +15,11 @@ export interface IUser {
   failedLogins: number;
   lockedUntil: Date | null;
   lastLoginAt: Date | null;
+  /** Rahasia TOTP terenkripsi; baru berlaku bila mfaEnabled. */
+  mfaSecret?: string;
+  mfaEnabled?: boolean;
+  /** Langkah TOTP terakhir yang dipakai, agar satu kode tidak bisa dipakai dua kali. */
+  mfaLastStep?: number;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -30,6 +35,9 @@ const UserSchema = new Schema<IUser>(
     failedLogins: { type: Number, default: 0 },
     lockedUntil: { type: Date, default: null },
     lastLoginAt: { type: Date, default: null },
+    mfaSecret: { type: String, select: false },
+    mfaEnabled: { type: Boolean, default: false },
+    mfaLastStep: { type: Number, select: false },
   },
   { timestamps: true },
 );

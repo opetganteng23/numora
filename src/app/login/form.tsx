@@ -7,6 +7,7 @@ import { AuthShell } from "@/components/AuthShell";
 export default function LoginForm({ registrationOpen }: { registrationOpen: boolean }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [needCode, setNeedCode] = useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -16,13 +17,14 @@ export default function LoginForm({ registrationOpen }: { registrationOpen: bool
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: form.get("email"), password: form.get("password") }),
+      body: JSON.stringify({ email: form.get("email"), password: form.get("password"), code: form.get("code") || undefined }),
     });
     setLoading(false);
     if (res.ok) {
       window.location.href = "/dashboard";
     } else {
       const data = await res.json().catch(() => ({}));
+      if (data.code === "MFA_REQUIRED") setNeedCode(true);
       setError(data.error ?? "Gagal masuk");
     }
   }
@@ -34,6 +36,12 @@ export default function LoginForm({ registrationOpen }: { registrationOpen: bool
         <input id="email" name="email" type="email" autoComplete="username" required />
         <label htmlFor="password">Password</label>
         <input id="password" name="password" type="password" autoComplete="current-password" required />
+        {needCode && (
+          <>
+            <label htmlFor="code">Kode autentikator (6 angka)</label>
+            <input id="code" name="code" inputMode="numeric" pattern="\d{6}" maxLength={6} autoComplete="one-time-code" autoFocus required />
+          </>
+        )}
         <p style={{ textAlign: "right", margin: "8px 0 0", fontSize: 14 }}>
           <Link href="/forgot-password">Lupa password?</Link>
         </p>

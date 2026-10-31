@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { MfaCard } from "@/components/MfaCard";
 import { api } from "@/lib/client";
 
 export default function ProfilePage() {
@@ -45,6 +46,7 @@ export default function ProfilePage() {
           {busy ? "Menyimpan..." : "Simpan password"}
         </button>
       </form>
+      <MfaCard />
     </>
   );
 }
